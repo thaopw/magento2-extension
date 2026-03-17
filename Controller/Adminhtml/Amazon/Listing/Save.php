@@ -9,13 +9,16 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
     /** @var \Ess\M2ePro\Helper\Data */
     protected $helperData;
     private \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesService;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $shippingTemplateSnapshotBuilderFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $shippingTemplateDiffFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $shippingTemplateChangeProcessorFactory;
 
-    /**
-     * @param \Ess\M2ePro\Helper\Data $helperData
-     * @param \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory
-     * @param \Ess\M2ePro\Controller\Adminhtml\Context $context
-     */
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $shippingTemplateSnapshotBuilderFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $shippingTemplateDiffFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $shippingTemplateChangeProcessorFactory,
         \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesService,
         \Ess\M2ePro\Helper\Data $helperData,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
@@ -24,6 +27,10 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
         $this->helperData = $helperData;
         $this->offerImagesService = $offerImagesService;
         parent::__construct($amazonFactory, $context);
+        $this->shippingTemplateRepository = $shippingTemplateRepository;
+        $this->shippingTemplateSnapshotBuilderFactory = $shippingTemplateSnapshotBuilderFactory;
+        $this->shippingTemplateDiffFactory = $shippingTemplateDiffFactory;
+        $this->shippingTemplateChangeProcessorFactory = $shippingTemplateChangeProcessorFactory;
     }
 
     // ----------------------------------------
@@ -303,31 +310,27 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
             return;
         }
 
-        $oldTemplate = $this->activeRecordFactory->getObject('Amazon_Template_Shipping');
-        if (!empty($oldData['template_shipping_id'])) {
-            $oldTemplate = $oldTemplate->load($oldData['template_shipping_id']);
+        $oldTemplate = $this->shippingTemplateRepository->find((int)$oldData['template_shipping_id']);
+        $oldSnapshot = [];
+        if ($oldTemplate !== null) {
+            $snapshotBuilder = $this->shippingTemplateSnapshotBuilderFactory->create();
+            $snapshotBuilder->setModel($oldTemplate);
+            $oldSnapshot = $snapshotBuilder->getSnapshot();
         }
 
-        $snapshotBuilder = $this->modelFactory->getObject('Amazon_Template_Shipping_SnapshotBuilder');
-        $snapshotBuilder->setModel($oldTemplate);
-        $oldSnapshot = $snapshotBuilder->getSnapshot();
-
-        $newTemplate = $this->activeRecordFactory->getObject('Amazon_Template_Shipping');
-        if (!empty($newData['template_shipping_id'])) {
-            $newTemplate = $oldTemplate->load($newData['template_shipping_id']);
+        $newTemplate = $this->shippingTemplateRepository->find((int)$newData['template_shipping_id']);
+        $newSnapshot = [];
+        if ($newTemplate !== null) {
+            $snapshotBuilder = $this->shippingTemplateSnapshotBuilderFactory->create();
+            $snapshotBuilder->setModel($newTemplate);
+            $newSnapshot = $snapshotBuilder->getSnapshot();
         }
 
-        $snapshotBuilder = $this->modelFactory->getObject('Amazon_Template_Shipping_SnapshotBuilder');
-        $snapshotBuilder->setModel($newTemplate);
-        $newSnapshot = $snapshotBuilder->getSnapshot();
-
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\Diff $diff */
-        $diff = $this->modelFactory->getObject('Amazon_Template_Shipping_Diff');
+        $diff = $this->shippingTemplateDiffFactory->create();
         $diff->setNewSnapshot($newSnapshot);
         $diff->setOldSnapshot($oldSnapshot);
 
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessor $changeProcessor */
-        $changeProcessor = $this->modelFactory->getObject('Amazon_Template_Shipping_ChangeProcessor');
+        $changeProcessor = $this->shippingTemplateChangeProcessorFactory->create();
         $changeProcessor->process($diff, $affectedListingsProductsData);
     }
 }

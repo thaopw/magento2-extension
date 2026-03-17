@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\Amazon\Template\Shipping;
 
@@ -21,17 +17,14 @@ class ChangeProcessor extends \Ess\M2ePro\Model\Amazon\Template\ChangeProcessor\
     }
 
     /**
-     * @param \Ess\M2ePro\Model\ActiveRecord\Diff $diff
+     * @param \Ess\M2ePro\Model\Amazon\Template\Shipping\Diff $diff
      * @param $status
      *
      * @return array
      */
     protected function getInstructionsData(\Ess\M2ePro\Model\ActiveRecord\Diff $diff, $status): array
     {
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\Diff $diff */
-
         $data = [];
-
         if ($diff->isDetailsDifferent()) {
             $priority = 5;
 

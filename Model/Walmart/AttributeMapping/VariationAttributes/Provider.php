@@ -140,7 +140,11 @@ class Provider
 
                 $selectedOptionId = $existedMappings[$key] ?? null;
 
-                $channelAttributeOptions[] = new AttributeOption($optionName, $optionValue, $selectedOptionId);
+                $channelAttributeOptions[] = new AttributeOption(
+                    (string)$optionName,
+                    (string)$optionValue,
+                    $selectedOptionId
+                );
             }
 
             $variationAttributes[] = new VariationAttribute(

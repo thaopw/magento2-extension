@@ -450,6 +450,9 @@ class Config extends AbstractConfig
                 'EbayAddIsFullRefundToOrder',
                 'AddWalmartRepricerPolicy',
             ],
+            'y26_m03' => [
+                'AmazonUseMagentoAttributeAsSourceOfShippingTemplates',
+            ],
         ];
     }
 
@@ -565,6 +568,8 @@ class Config extends AbstractConfig
             \Ess\M2ePro\Setup\Update\y26_m01\EbayAddImportChannelInfo::class,
             \Ess\M2ePro\Setup\Update\y26_m01\EbayAddIsFullRefundToOrder::class,
             \Ess\M2ePro\Setup\Update\y26_m01\AddWalmartRepricerPolicy::class,
+
+            \Ess\M2ePro\Setup\Update\y26_m03\AmazonUseMagentoAttributeAsSourceOfShippingTemplates::class,
         ];
     }
 

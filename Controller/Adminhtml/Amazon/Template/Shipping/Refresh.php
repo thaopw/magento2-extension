@@ -1,31 +1,23 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping;
 
-use Ess\M2ePro\Controller\Adminhtml\Amazon\Template;
-
-class Refresh extends Template
+class Refresh extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Template
 {
-    /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping */
-    private $templateShippingUpdate;
-    /** @var \Ess\M2ePro\Model\AccountFactory */
-    private $accountFactory;
+    private \Ess\M2ePro\Model\Amazon\Account\Repository $amazonAccountRepository;
+    private \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Update $templateShippingUpdate;
 
     public function __construct(
-        \Ess\M2ePro\Model\AccountFactory $accountFactory,
-        \Ess\M2ePro\Model\Amazon\Template\Shipping\Update $templateShippingUpdate,
+        \Ess\M2ePro\Model\Amazon\Account\Repository $amazonAccountRepository,
+        \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Update $templateShippingUpdate,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Controller\Adminhtml\Context $context
     ) {
         parent::__construct($amazonFactory, $context);
+        $this->amazonAccountRepository = $amazonAccountRepository;
         $this->templateShippingUpdate = $templateShippingUpdate;
-        $this->accountFactory = $accountFactory;
     }
 
     /**
@@ -33,9 +25,11 @@ class Refresh extends Template
      */
     public function execute()
     {
-        $accountId = (int)$this->getRequest()->getParam('account_id');
+        $amazonAccount = $this->amazonAccountRepository
+            ->get((int)$this->getRequest()->getParam('account_id'));
 
-        $account = $this->accountFactory->create()->load($accountId);
+        /** @var \Ess\M2ePro\Model\Account $account */
+        $account = $amazonAccount->getParentObject();
 
         $this->templateShippingUpdate->process($account);
 

@@ -1,153 +1,110 @@
 define([
-    'M2ePro/Plugin/Messages',
+    'jquery',
+    'mage/translate',
     'M2ePro/Amazon/Template/Edit'
-], function (MessageObj) {
+], function ($, $t) {
 
-    window.AmazonTemplateShipping = Class.create(AmazonTemplateEdit,  {
+    window.AmazonTemplateShipping = Class.create(AmazonTemplateEdit, {
+        initialize: function (currentId) {
 
-        initialize: function()
-        {
-            this.setValidationCheckRepetitionValue('M2ePro-shipping-tpl-title',
-                M2ePro.translator.translate('The specified Title is already used for other Policy. ' +
-                    'Policy Title must be unique.'),
-                'Amazon\\Template\\Shipping', 'title', 'id',
-                M2ePro.formData.id
+            this.accountSelect = $('#account_select');
+            this.accountHiddenInput = $('#account_id');
+            this.templateSelect = $('#template_id');
+            this.refreshTemplatesButton = $('#refresh_templates');
+
+            this.modeSelect = $('#template_mode');
+            this.magentoAttributeRow = $('#magento_attribute_tr');
+            this.amazonTemplateRow = $('#amazon_template_tr');
+
+            this.setValidationCheckRepetitionValue(
+                    'M2ePro-shipping-tpl-title',
+                    $t('The specified Title is already used for other Policy. Policy Title must be unique.'),
+                    'Amazon\\Template\\Shipping', 'title', 'id',
+                    currentId
             );
+
+            this.initObservers();
         },
 
-        initObservers: function()
-        {
-            $('account_id').observe('change', this.accountChange.bind(this)).simulate('change');
+        initObservers: function () {
+            this.accountSelect.on('change', this.accountChange.bind(this));
+            this.accountSelect.trigger('change');
+
+            this.refreshTemplatesButton.on('click', this.refreshTemplateShipping.bind(this));
+
+            this.modeSelect.on('change', this.modeChange.bind(this));
+            this.modeSelect.trigger('change');
         },
 
-        duplicateClick: function($headId)
-        {
+        duplicateClick: function ($headId) {
             this.showConfirmMsg = false;
 
-            this.setValidationCheckRepetitionValue('M2ePro-shipping-tpl-title',
-                M2ePro.translator.translate('The specified Title is already used for other Policy. Policy Title must be unique.'),
-                'Amazon\\Template\\Shipping', 'title', 'id', ''
+            this.setValidationCheckRepetitionValue(
+                    'M2ePro-shipping-tpl-title',
+                    $t('The specified Title is already used for other Policy. Policy Title must be unique.'),
+                    'Amazon\\Template\\Shipping', 'title', 'id', ''
             );
 
-            CommonObj.duplicateClick($headId, M2ePro.translator.translate('Add Shipping Policy'));
+            CommonObj.duplicateClick($headId, $t('Add Shipping Policy'));
         },
 
-        submitForm: function(url, newWindow = false)
-        {
-            var form = $('edit_form');
-            form.target = newWindow ? '_blank' : '_self';
+        accountChange: function () {
+            this.accountHiddenInput.val(this.accountSelect.val());
 
-            new Ajax.Request(url, {
-                method: 'post',
-                parameters: this.collectFormData(form),
-                onSuccess: function (transport) {
-                    var resultResponse = transport.responseText.evalJSON();
-                    if (resultResponse.status === true) {
-                        window.location = resultResponse.url;
-                    } else {
-                        MessageObj.addError(M2ePro.translator.translate('Policy Saving Error'));
-                    }
-                }
-            });
-        },
-
-        saveFormUsingAjax: function() {
-            new Ajax.Request(M2ePro.url.get('formSubmit'), {
-                method: 'post',
-                parameters: this.collectFormData($('edit_form')),
-                onSuccess: function(transport) {
-                    var result = transport.responseText.evalJSON();
-
-                    if (result.status) {
-                        window.close();
-                    } else {
-                        console.error('Policy Saving Error');
-                    }
-                }
-            });
-        },
-
-        /**
-         * Collecting form data with ignoring disabled fields
-         */
-        collectFormData: function (form) {
-            var formData = {};
-            jQuery(form).find ('input, select').each(function (){
-                formData[this.name] = jQuery(this).val();
-            });
-
-            return formData;
-        },
-
-        accountChange: function()
-        {
-            var accountIdSelect = $('account_id');
-            var templateIdSelect = $('template_id');
-            var refreshTemplatesButton = $('refresh_templates');
-            var placeholderOptions = '<option></option>';
-
-            if (!accountIdSelect.hasAttribute('disabled')) {
-                templateIdSelect.update();
-                templateIdSelect.insert(placeholderOptions);
-            }
-
-            if (!accountIdSelect.value) {
-                templateIdSelect.setAttribute("disabled", "disabled");
-                refreshTemplatesButton.addClassName('disabled');
+            if (!this.accountHiddenInput.val()) {
+                this.templateSelect.prop('disabled', true);
+                this.refreshTemplatesButton.addClass('disabled');
             } else {
-                templateIdSelect.removeAttribute('disabled');
-                refreshTemplatesButton.removeClassName('disabled');
+                this.templateSelect.prop('disabled', false);
+                this.refreshTemplatesButton.removeClass('disabled');
+                this.refreshTemplateShipping();
             }
         },
 
-        refreshTemplateShipping: function()
-        {
+        modeChange: function () {
+            const mode = Number(this.modeSelect.val());
+
+            this.magentoAttributeRow.hide();
+            this.amazonTemplateRow.hide();
+
+            if (mode === 1) {
+                this.amazonTemplateRow.show();
+            }
+
+            if (mode === 2) {
+                this.magentoAttributeRow.show();
+            }
+        },
+
+        refreshTemplateShipping: function () {
             new Ajax.Request(M2ePro.url.get('amazon_template_shipping/refresh'), {
                 method: 'post',
                 parameters: {
-                    account_id: $('account_id').value
+                    account_id: this.accountHiddenInput.val()
                 },
-                onSuccess: function()
-                {
-                    AmazonTemplateShippingObj.renderTemplates();
-                }
+                onSuccess: this.renderTemplates.bind(this)
             });
         },
 
-        renderTemplates: function()
-        {
+        renderTemplates: function () {
             new Ajax.Request(M2ePro.url.get('amazon_template_shipping/getTemplates'), {
                 method: 'post',
                 parameters: {
-                    account_id: $('account_id').value
+                    account_id: this.accountHiddenInput.val()
                 },
-                onSuccess: function(transport)
-                {
-                    var select = $('template_id');
-                    var options = '<option></option>';
-                    var firstItem = null;
-                    var currentValue = select.value;
+                onSuccess: (transport) => {
+                    const newOptions = transport.responseText.evalJSON(true);
 
-                    var data = transport.responseText.evalJSON(true);
+                    const currentVal = this.templateSelect.val();
 
-                    data.each(function(item) {
-                        options += `<option value="${item.template_id}">${item.title}</option>`;
-
-                        if (!firstItem) {
-                            firstItem = item;
-                        }
+                    let optionsHtml = '';
+                    newOptions.forEach(item => {
+                        optionsHtml += `<option value="${item.template_id}">${item.title}</option>`;
                     });
 
-                    select.update();
-                    select.insert(options);
-
-                    if (currentValue !== '') {
-                        select.value = currentValue;
-                    } else if (typeof id !== 'undefined' && M2ePro.formData[id] > 0) {
-                        select.value = M2ePro.formData[id];
-                    } else {
-                        select.value = firstItem.id;
-                    }
+                    this.templateSelect.html(optionsHtml);
+                    this.templateSelect.val(currentVal);
+                    this.templateSelect.trigger('change');
                 }
             });
         }

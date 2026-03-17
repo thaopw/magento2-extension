@@ -1,18 +1,22 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Product\Template\Shipping;
 
-/**
- * Class \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Product\Template\Shipping\Assign
- */
 class Assign extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Product\Template\Shipping
 {
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\SetForProducts $setShippingTemplateForProducts;
+
+    public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\SetForProducts $setShippingTemplateForProducts,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Ess\M2ePro\Controller\Adminhtml\Context $context
+    ) {
+        parent::__construct($amazonFactory, $context);
+        $this->setShippingTemplateForProducts = $setShippingTemplateForProducts;
+    }
+
     public function execute()
     {
         $productsIds = $this->getRequest()->getParam('products_ids');
@@ -47,7 +51,7 @@ class Assign extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Product\Tem
                 'text' => $this->__('Shipping Policy was assigned.'),
             ];
 
-            $this->setShippingTemplateForProducts($productsIdsLocked, $templateId);
+            $this->setShippingTemplateForProducts->execute($productsIdsLocked, (int)$templateId);
             $this->runProcessorForParents($productsIdsLocked);
         }
 

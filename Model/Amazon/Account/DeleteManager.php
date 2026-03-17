@@ -10,8 +10,12 @@ class DeleteManager
     private $accountCollectionFactory;
     /** @var \Ess\M2ePro\Model\Amazon\Account\EventDispatcher */
     private $eventDispatcher;
+    private \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $dictionaryTemplateShippingRepository;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $dictionaryTemplateShippingRepository,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository,
         \Ess\M2ePro\Helper\Data\Cache\Permanent $cachePermanent,
         \Ess\M2ePro\Model\ResourceModel\Account\CollectionFactory $accountCollectionFactory,
         EventDispatcher $eventDispatcher
@@ -19,6 +23,8 @@ class DeleteManager
         $this->cachePermanent = $cachePermanent;
         $this->accountCollectionFactory = $accountCollectionFactory;
         $this->eventDispatcher = $eventDispatcher;
+        $this->dictionaryTemplateShippingRepository = $dictionaryTemplateShippingRepository;
+        $this->templateShippingRepository = $templateShippingRepository;
     }
 
     /**
@@ -79,8 +85,8 @@ class DeleteManager
             $this->assertSuccess($amazonAccountRepricing->delete(), 'Account Repricing');
         }
 
-        $amazonAccount->deleteShippingPolicies();
-        $amazonAccount->deleteDictionaryTemplateShipping();
+        $this->templateShippingRepository->deleteAllByAccountId((int)$account->getId());
+        $this->dictionaryTemplateShippingRepository->deleteAllByAccountId((int)$account->getId());
 
         $this->cachePermanent->removeTagValues('account');
 

@@ -185,28 +185,6 @@ class Account extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
         return $this->repricingModel;
     }
 
-    /**
-     * @return array
-     * @throws \Ess\M2ePro\Model\Exception\Logic
-     */
-    public function getShippingPolicies(): array
-    {
-        return $this->getRelatedSimpleItems('Amazon_Template_Shipping', 'account_id', true);
-    }
-
-    /**
-     * @return void
-     * @throws \Ess\M2ePro\Model\Exception\Logic
-     */
-    public function deleteShippingPolicies(): void
-    {
-        $policies = $this->getShippingPolicies();
-
-        foreach ($policies as $policy) {
-            $policy->delete();
-        }
-    }
-
     public function getInventorySku(): array
     {
         return $this->getRelatedSimpleItems('Amazon_Inventory_Sku', 'account_id', true);
@@ -232,20 +210,6 @@ class Account extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
 
         foreach ($items as $item) {
             $item->delete();
-        }
-    }
-
-    public function getDictionaryTemplateShipping($asObjects = false): array
-    {
-        return $this->getRelatedSimpleItems('Amazon_Dictionary_TemplateShipping', 'account_id', $asObjects);
-    }
-
-    public function deleteDictionaryTemplateShipping(): void
-    {
-        $templates = $this->getDictionaryTemplateShipping(true);
-
-        foreach ($templates as $template) {
-            $template->delete();
         }
     }
 

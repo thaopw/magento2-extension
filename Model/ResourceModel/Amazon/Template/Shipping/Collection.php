@@ -1,20 +1,15 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping;
 
 /**
- * Class \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping\Collection
+ * @method \Ess\M2ePro\Model\Amazon\Template\Shipping[] getItems()
+ * @method \Ess\M2ePro\Model\Amazon\Template\Shipping getFirstItem()
  */
 class Collection extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Collection\AbstractModel
 {
-    //########################################
-
     public function _construct()
     {
         parent::_construct();
@@ -23,6 +18,4 @@ class Collection extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Collection
             \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::class
         );
     }
-
-    //########################################
 }

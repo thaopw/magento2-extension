@@ -1,21 +1,20 @@
 <?php
 
-namespace Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping;
+declare(strict_types=1);
 
-use Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping\Collection as AmazonTemplateShippingCollection;
+namespace Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping;
 
 class CollectionFactory
 {
-    /** @var \Magento\Framework\ObjectManagerInterface */
-    private $objectManager;
+    private \Magento\Framework\ObjectManagerInterface $objectManager;
 
     public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager)
     {
         $this->objectManager = $objectManager;
     }
 
-    public function create(array $data = []): AmazonTemplateShippingCollection
+    public function create(): Collection
     {
-        return $this->objectManager->create(AmazonTemplateShippingCollection::class, $data);
+        return $this->objectManager->create(Collection::class);
     }
 }

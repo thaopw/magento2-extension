@@ -117,6 +117,18 @@ class ChangeProcessor extends \Ess\M2ePro\Model\Magento\Product\ChangeProcessor\
             );
         }
 
+        if ($this->getAmazonListingProduct()->isExistShippingTemplate()) {
+            $template = $this->getAmazonListingProduct()->getShippingTemplate();
+            if ($template->isModeMagentoAttribute()) {
+                $trackingAttributes[] = $template->getCustomAttribute();
+            }
+        } elseif ($amazonListing->isExistShippingTemplate()) {
+            $template = $amazonListing->getShippingTemplate();
+            if ($template->isModeMagentoAttribute()) {
+                $trackingAttributes[] = $template->getCustomAttribute();
+            }
+        }
+
         return array_unique($trackingAttributes);
     }
 

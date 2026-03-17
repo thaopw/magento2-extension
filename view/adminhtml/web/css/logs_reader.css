@@ -1,0 +1,133 @@
+#logs_reader_main_container {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    padding: 10px;
+    position: relative;
+}
+
+#logs_reader_main_container:fullscreen {
+    padding: 20px;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.log-container textarea.loading {
+    opacity: 0.5;
+    background-image: var(--loader-image-url);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 250px);
+    min-height: 500px;
+    border: 1px solid #d6d6d6;
+    background: #fff;
+}
+
+#logs_reader_main_container:fullscreen .content {
+    height: calc(100vh - 120px);
+}
+
+.log-container {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.log-viewer {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    background-color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.line-numbers {
+    width: 65px;
+    padding: 10px 5px;
+    text-align: right;
+    background-color: #f5f5f5;
+    color: #999;
+    border-right: 1px solid #d6d6d6;
+    user-select: none;
+    overflow: hidden;
+    white-space: pre;
+}
+
+.log-container textarea {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 10px;
+    margin: 0;
+    white-space: pre;
+    overflow: auto;
+    background: transparent;
+    color: #333;
+    line-height: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.header-toolbar {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f8f8;
+    padding: 10px;
+    border: 1px solid #d6d6d6;
+}
+
+.header-toolbar .info {
+    text-align: center;
+}
+
+.current-file-info {
+    font-weight: normal;
+    color: #666;
+    font-size: 0.9em;
+}
+
+#load_more_container {
+    text-align: center;
+    padding: 8px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #d6d6d6;
+}
+
+#load_more_btn {
+    background: #fff;
+    border: 1px solid #adadad;
+    color: #333;
+    padding: 4px 20px;
+    cursor: pointer;
+    font-size: 11px;
+    border-radius: 3px;
+}
+
+#load_more_btn:hover {
+    background: #e1e1e1;
+    border-color: #888;
+}
+
+#load_more_btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.fullscreen-hint {
+    display: block;
+    font-size: 10px;
+    color: #aaa;
+    margin-top: 3px;
+}

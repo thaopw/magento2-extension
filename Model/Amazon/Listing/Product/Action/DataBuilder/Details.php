@@ -236,29 +236,47 @@ class Details extends AbstractModel
      */
     protected function getShippingData(): array
     {
-        if (
-            $this->getAmazonListingProduct()->isAfnChannel()
-            || !$this->getAmazonListingProduct()->isExistShippingTemplate()
-            && !$this->getAmazonListing()->isExistShippingTemplate()
-        ) {
+        if ($this->getAmazonListingProduct()->isAfnChannel()) {
             return [];
         }
 
-        if (!$this->getAmazonListingProduct()->isExistShippingTemplate()) {
+        if ($this->getAmazonListingProduct()->isExistShippingTemplate()) {
+            try {
+                $source = $this->getAmazonListingProduct()->getShippingTemplateSource();
+                $templateName = $source->getTemplateId();
+            } catch (\Ess\M2ePro\Model\Amazon\Template\Shipping\CustomAttributeException $exception) {
+                $this->addWarningMessage($exception->getMessage());
+
+                return [];
+            }
+
             return [
                 'shipping_data' => [
-                    'template_name' => $this->getAmazonListing()->getShippingTemplateSource(
-                        $this->getAmazonListingProduct()->getActualMagentoProduct()
-                    )->getTemplateId(),
+                    'template_name' => $templateName,
                 ],
             ];
         }
 
-        return [
-            'shipping_data' => [
-                'template_name' => $this->getAmazonListingProduct()->getShippingTemplateSource()->getTemplateId(),
-            ],
-        ];
+        if ($this->getAmazonListing()->isExistShippingTemplate()) {
+            try {
+                $source = $this
+                    ->getAmazonListing()
+                    ->getShippingTemplateSource($this->getMagentoProduct());
+                $templateName = $source->getTemplateId();
+            } catch (\Ess\M2ePro\Model\Amazon\Template\Shipping\CustomAttributeException $exception) {
+                $this->addWarningMessage($exception->getMessage());
+
+                return [];
+            }
+
+            return [
+                'shipping_data' => [
+                    'template_name' => $templateName,
+                ],
+            ];
+        }
+
+        return [];
     }
 
     /**

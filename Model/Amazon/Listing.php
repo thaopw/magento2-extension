@@ -43,8 +43,8 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
     public const CONDITION_NOTE_MODE_NONE = 3;
     public const CONDITION_NOTE_MODE_CUSTOM_VALUE = 1;
 
-    public const HANDLING_TIME_MODE_NONE             = 3;
-    public const HANDLING_TIME_MODE_RECOMMENDED      = 1;
+    public const HANDLING_TIME_MODE_NONE = 3;
+    public const HANDLING_TIME_MODE_RECOMMENDED = 1;
     public const HANDLING_TIME_MODE_CUSTOM_ATTRIBUTE = 2;
 
     public const RESTOCK_DATE_MODE_NONE = 1;
@@ -76,8 +76,10 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
     private $synchronizationTemplateModel = null;
     /** @var \Ess\M2ePro\Model\Amazon\Listing\Source[] */
     private $listingSourceModels = [];
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository,
         \Ess\M2ePro\Model\Currency $currencyModel,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Factory $parentFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
@@ -104,6 +106,7 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
 
         $this->currencyModel = $currencyModel;
         $this->moduleConfiguration = $moduleConfiguration;
+        $this->shippingTemplateRepository = $shippingTemplateRepository;
     }
 
     public function _construct()
@@ -259,48 +262,33 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
     {
         return $this->getSynchronizationTemplate()->getChildObject();
     }
+
     // ---------------------------------------
 
-    /**
-     * @return int
-     */
-    public function getTemplateShippingId()
+    public function getTemplateShippingId(): int
     {
         return (int)($this->getData('template_shipping_id'));
     }
 
-    /**
-     * @return bool
-     */
-    public function isExistShippingTemplate()
+    public function isExistShippingTemplate(): bool
     {
         return $this->getTemplateShippingId() > 0;
     }
 
-    /**
-     * @return \Ess\M2ePro\Model\Amazon\Template\Shipping | null
-     */
-    public function getShippingTemplate()
+    public function getShippingTemplate(): ?Template\Shipping
     {
         if (!$this->isExistShippingTemplate()) {
             return null;
         }
 
-        return $this->activeRecordFactory->getCachedObjectLoaded(
-            'Amazon_Template_Shipping',
-            $this->getTemplateShippingId()
-        );
+        return $this->shippingTemplateRepository->get($this->getTemplateShippingId());
     }
 
     // ---------------------------------------
 
-    /**
-     * @param \Ess\M2ePro\Model\Magento\Product $magentoProduct
-     *
-     * @return \Ess\M2ePro\Model\Amazon\Template\Shipping\Source
-     */
-    public function getShippingTemplateSource(\Ess\M2ePro\Model\Magento\Product $magentoProduct)
-    {
+    public function getShippingTemplateSource(
+        \Ess\M2ePro\Model\Magento\Product $magentoProduct
+    ): ?Template\Shipping\Source {
         if (!$this->isExistShippingTemplate()) {
             return null;
         }

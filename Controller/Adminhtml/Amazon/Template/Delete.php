@@ -1,86 +1,56 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Template;
 
-use Ess\M2ePro\Controller\Adminhtml\Amazon\Template;
-
-/**
- * Class \Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Delete
- */
-class Delete extends Template
+class Delete extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Template
 {
+    private \Magento\Framework\Controller\Result\ForwardFactory $forwardFactory;
+
+    public function __construct(
+        \Magento\Framework\Controller\Result\ForwardFactory $forwardFactory,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Ess\M2ePro\Controller\Adminhtml\Context $context
+    ) {
+        parent::__construct($amazonFactory, $context);
+        $this->forwardFactory = $forwardFactory;
+    }
+
     //########################################
 
     public function execute()
     {
-        $ids = $this->getRequestIds();
         $type = $this->getRequest()->getParam('type');
 
-        if (count($ids) == 0) {
-            $this->messageManager->addError($this->__('Please select Item(s) to remove.'));
+        /** @var \Magento\Framework\Controller\Result\Forward $resultForward */
+        $resultForward = $this->forwardFactory->create();
+        $forward = $resultForward->setParams($this->getRequest()->getParams());
 
-            return $this->_redirect('*/*/index');
+        if ($type === \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SHIPPING) {
+            return $forward
+                ->setController('amazon_template_shipping')
+                ->forward('delete');
         }
 
-        if (empty($type)) {
-            $this->messageManager->addError($this->__('You should provide correct parameters.'));
-
-            return $this->_redirect('*/*/index');
+        if ($type === \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_PRODUCT_TAX_CODE) {
+            return $forward
+                ->setController('amazon_template_productTaxCode')
+                ->forward('delete');
         }
 
-        $deleted = $locked = 0;
-        foreach ($ids as $id) {
-            $template = $this->getTemplateObject($type, $id);
-
-            if ($template->isLocked()) {
-                $locked++;
-            } else {
-                $template->delete();
-                $deleted++;
-            }
+        if ($type === \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SELLING_FORMAT) {
+            return $forward
+                ->setController('amazon_template_sellingFormat')
+                ->forward('delete');
         }
 
-        $tempString = $this->__('%amount% record(s) were deleted.', $deleted);
-        $deleted && $this->messageManager->addSuccess($tempString);
+        if ($type === \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SYNCHRONIZATION) {
+            return $forward
+                ->setController('amazon_template_synchronization')
+                ->forward('delete');
+        }
 
-        $tempString = $this->__('%amount% record(s) are used in Listing(s).', $locked) . ' ';
-        $tempString .= $this->__('Policy must not be in use to be deleted.');
-        $locked && $this->messageManager->addError($tempString);
-
-        $this->_redirect('*/*/index');
+        return $this->getResult();
     }
-
-    //########################################
-
-    private function getTemplateObject($type, $id)
-    {
-        switch ($type) {
-            case \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SHIPPING:
-                $model = $this->activeRecordFactory->getObject('Amazon_Template_Shipping')->load($id);
-                break;
-
-            case \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_PRODUCT_TAX_CODE:
-                $model = $this->activeRecordFactory->getObject('Amazon_Template_ProductTaxCode')->load($id);
-                break;
-
-            case \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SELLING_FORMAT:
-                $model = $this->amazonFactory->getObjectLoaded('Template\SellingFormat', $id);
-                break;
-
-            case \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Grid::TEMPLATE_SYNCHRONIZATION:
-            default:
-                $model = $this->amazonFactory->getObjectLoaded('Template\\' . ucfirst($type), $id);
-                break;
-        }
-
-        return $model;
-    }
-
-    //########################################
 }

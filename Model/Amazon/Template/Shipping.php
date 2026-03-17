@@ -1,28 +1,22 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\Amazon\Template;
 
-/**
- * @method \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping getResource()
- */
+use Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping as TemplateShippingResource;
+
 class Shipping extends \Ess\M2ePro\Model\ActiveRecord\Component\AbstractModel
 {
-    /** @var \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory */
-    protected $amazonFactory;
-    /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\Source[] */
-    private $shippingTemplateSourceModels = [];
-    /** @var \Ess\M2ePro\Helper\Data\Cache\Permanent */
-    private $cachePermanent;
+    public const MODE_AMAZON_TEMPLATE = 1;
+    public const MODE_MAGENTO_ATTRIBUTE = 2;
+
+    private array $shippingTemplateSourceModels = [];
+
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\SourceFactory $sourceFactory;
 
     public function __construct(
-        \Ess\M2ePro\Helper\Data\Cache\Permanent $cachePermanent,
-        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\SourceFactory $sourceFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
         \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
         \Ess\M2ePro\Helper\Factory $helperFactory,
@@ -32,8 +26,7 @@ class Shipping extends \Ess\M2ePro\Model\ActiveRecord\Component\AbstractModel
         ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
-        $this->cachePermanent = $cachePermanent;
-        $this->amazonFactory = $amazonFactory;
+        $this->sourceFactory = $sourceFactory;
 
         parent::__construct(
             $modelFactory,
@@ -50,94 +43,94 @@ class Shipping extends \Ess\M2ePro\Model\ActiveRecord\Component\AbstractModel
     public function _construct()
     {
         parent::_construct();
-        $this->_init(\Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::class);
-    }
-
-    /**
-     * @return bool
-     * @throws \Ess\M2ePro\Model\Exception\Logic
-     */
-    public function isLocked(): bool
-    {
-        if (parent::isLocked()) {
-            return true;
-        }
-
-        return (bool)$this->activeRecordFactory->getObject('Amazon_Listing')
-                                               ->getCollection()
-                                               ->addFieldToFilter('template_shipping_id', $this->getId())
-                                               ->getSize() ||
-            (bool)$this->activeRecordFactory->getObject('Amazon_Listing_Product')
-                                            ->getCollection()
-                                            ->addFieldToFilter('template_shipping_id', $this->getId())
-                                            ->getSize();
+        $this->_init(TemplateShippingResource::class);
     }
 
     /**
      * @param \Ess\M2ePro\Model\Magento\Product $magentoProduct
      *
      * @return \Ess\M2ePro\Model\Amazon\Template\Shipping\Source
-     * @throws \Ess\M2ePro\Model\Exception\Logic
      */
     public function getSource(\Ess\M2ePro\Model\Magento\Product $magentoProduct): Shipping\Source
     {
-        $id = $magentoProduct->getProductId();
+        $productId = $magentoProduct->getProductId();
 
-        if (!empty($this->shippingTemplateSourceModels[$id])) {
-            return $this->shippingTemplateSourceModels[$id];
+        if (!empty($this->shippingTemplateSourceModels[$productId])) {
+            return $this->shippingTemplateSourceModels[$productId];
         }
 
-        $this->shippingTemplateSourceModels[$id] = $this->modelFactory->getObject(
-            'Amazon_Template_Shipping_Source'
-        );
+        $sourceModel = $this->sourceFactory->create();
+        $sourceModel->setMagentoProduct($magentoProduct);
+        $sourceModel->setShippingTemplate($this);
 
-        $this->shippingTemplateSourceModels[$id]->setMagentoProduct($magentoProduct);
-        $this->shippingTemplateSourceModels[$id]->setShippingTemplate($this);
+        $this->shippingTemplateSourceModels[$productId] = $sourceModel;
 
-        return $this->shippingTemplateSourceModels[$id];
+        return $this->shippingTemplateSourceModels[$productId];
     }
 
-    public function getTitle()
+    public function getId(): int
     {
-        return $this->getData('title');
+        return (int)parent::getId();
+    }
+
+    public function getTitle(): string
+    {
+        return (string)$this->getData(TemplateShippingResource::COLUMN_TITLE);
+    }
+
+    public function getAccountId(): int
+    {
+        return (int)$this->getData(TemplateShippingResource::COLUMN_ACCOUNT_ID);
+    }
+
+    public function isModeAmazonTemplate(): bool
+    {
+        return (int)$this->getData(TemplateShippingResource::COLUMN_MODE) === self::MODE_AMAZON_TEMPLATE;
+    }
+
+    public function isModeMagentoAttribute(): bool
+    {
+        return (int)$this->getData(TemplateShippingResource::COLUMN_MODE) === self::MODE_MAGENTO_ATTRIBUTE;
+    }
+
+    public function getCustomAttribute(): string
+    {
+        return (string)$this->getData(TemplateShippingResource::COLUMN_CUSTOM_ATTRIBUTE);
     }
 
     public function getTemplateId(): string
     {
-        return $this->getData('template_id');
+        return (string)$this->getData(TemplateShippingResource::COLUMN_TEMPLATE_ID);
     }
 
-    public function getCreateDate()
-    {
-        return $this->getData('create_date');
+    public function create(
+        string $title,
+        int $accountId,
+        int $marketplaceId,
+        int $mode,
+        string $templateId,
+        string $customAttribute
+    ): self {
+        $this
+            ->setData(TemplateShippingResource::COLUMN_TITLE, $title)
+            ->setData(TemplateShippingResource::COLUMN_ACCOUNT_ID, $accountId)
+            ->setData(TemplateShippingResource::COLUMN_MARKETPLACE_ID, $marketplaceId)
+            ->setData(TemplateShippingResource::COLUMN_MODE, $mode)
+            ->setData(TemplateShippingResource::COLUMN_TEMPLATE_ID, $templateId)
+            ->setData(TemplateShippingResource::COLUMN_CUSTOM_ATTRIBUTE, $customAttribute)
+            ->setData(TemplateShippingResource::COLUMN_CREATE_DATE, \Ess\M2ePro\Helper\Date::createCurrentGmt());
+
+        return $this;
     }
 
-    public function getUpdateDate()
+    public function update(string $title, int $mode, string $templateId, string $customAttribute): self
     {
-        return $this->getData('update_date');
-    }
+        $this
+            ->setData(TemplateShippingResource::COLUMN_TITLE, $title)
+            ->setData(TemplateShippingResource::COLUMN_MODE, $mode)
+            ->setData(TemplateShippingResource::COLUMN_TEMPLATE_ID, $templateId)
+            ->setData(TemplateShippingResource::COLUMN_CUSTOM_ATTRIBUTE, $customAttribute);
 
-    public function save()
-    {
-        $this->cachePermanent->removeTagValues('amazon_template_shipping');
-
-        return parent::save();
-    }
-
-    public function delete()
-    {
-        $this->cachePermanent->removeTagValues('amazon_template_shipping');
-
-        return parent::delete();
-    }
-
-    public function isCacheEnabled(): bool
-    {
-        return true;
-    }
-
-    public function getCacheGroupTags(): array
-    {
-        return array_merge(parent::getCacheGroupTags(), ['template']);
+        return $this;
     }
 }

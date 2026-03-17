@@ -1,41 +1,37 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping;
 
 class GetTemplates extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Account
 {
-    /** @var \Ess\M2ePro\Model\AccountFactory */
-    private $accountFactory;
+    private \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $templateShippingRepository;
 
     public function __construct(
-        \Ess\M2ePro\Model\AccountFactory $accountFactory,
+        \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $templateShippingRepository,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Controller\Adminhtml\Context $context
     ) {
         parent::__construct($amazonFactory, $context);
 
-        $this->accountFactory = $accountFactory;
+        $this->templateShippingRepository = $templateShippingRepository;
     }
 
-    /**
-     * @throws \Ess\M2ePro\Model\Exception\Logic
-     */
     public function execute()
     {
-        $accountId = (int)$this->getRequest()->getParam('account_id');
+        $templates = $this->templateShippingRepository
+            ->getByAccountId((int)$this->getRequest()->getParam('account_id'));
 
-        $account = $this->accountFactory->create()->load($accountId);
-        $account->setChildMode(\Ess\M2ePro\Helper\Component\Amazon::NICK);
+        $response = [];
+        foreach ($templates as $template) {
+            $response[] = [
+                'template_id' => $template->getTemplateId(),
+                'title' => $template->getTitle(),
+            ];
+        }
 
-        $templatesArray = $account->getChildObject()->getDictionaryTemplateShipping();
-
-        $this->setJsonContent($templatesArray);
+        $this->setJsonContent($response);
 
         return $this->getResult();
     }

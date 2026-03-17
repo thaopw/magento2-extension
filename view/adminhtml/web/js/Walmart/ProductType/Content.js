@@ -56,13 +56,13 @@ define(
 
                         const htmlId = element.id.slice('field_mode_'.length);
                         if (parseInt(value) === this.constFieldCustomValue) {
-                            const customValue = jQuery(`[id="field_value_${htmlId}"]`).val().trim();
+                            const customValue = jQuery(`[id="field_value_${htmlId}"]`).val() || '';
 
-                            return customValue !== '';
+                            return customValue.trim() !== '';
                         }
 
                         if (parseInt(value) === this.constFieldCustomAttribute) {
-                            const customAttribute = jQuery(`[id="field_attribute_${htmlId}"]`).val();
+                            const customAttribute = jQuery(`[id="field_attribute_${htmlId}"]`).val() || '';
 
                             return customAttribute !== '';
                         }

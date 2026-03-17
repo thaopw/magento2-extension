@@ -80,6 +80,37 @@ abstract class Command extends \Ess\M2ePro\Controller\Adminhtml\Base
         box-sizing: border-box;
     }
 
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #e2e8f0;
+    }
+
+    .table caption {
+        font-size: 1.25rem;
+        text-align: left;
+        font-weight: 700;
+        margin: .25rem 0;
+    }
+
+    .table td {
+        padding: .75rem;
+        vertical-align: top;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table td.label {
+        width: 200px;
+        background-color: #f8fafc;
+        font-weight: 700;
+        color: #475569;
+        border-right: 1px solid #e2e8f0;
+    }
+
     table.grid {
         border-color: black;
         border-style: solid;
@@ -104,9 +135,16 @@ abstract class Command extends \Ess\M2ePro\Controller\Adminhtml\Base
     }
 
     pre {
+        margin: 0;
+        padding: 1.25rem;
+        background-color: #ffffff;
+        color: #24292e;
+        border: 1px solid #e1e4e8;
+        border-radius: 8px;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        line-height: 1.6;
+        overflow-x: auto;
         white-space: pre-wrap;
-        white-space: -moz-pre-wrap;
-        white-space: -o-pre-wrap;
         word-wrap: break-word;
     }
 

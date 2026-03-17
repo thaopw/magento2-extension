@@ -10979,100 +10979,119 @@ class Installer
                                             ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($amazonOrderActionProcessing);
 
-        $amazonTemplateShippingTable = $this->getConnection()->newTable(
-            $this->getFullTableName('amazon_template_shipping')
-        )
-                                            ->addColumn(
-                                                'id',
-                                                Table::TYPE_INTEGER,
-                                                null,
-                                                [
-                                                    'unsigned' => true,
-                                                    'primary' => true,
-                                                    'nullable' => false,
-                                                    'auto_increment' => true,
-                                                ]
-                                            )
-                                            ->addColumn(
-                                                'title',
-                                                Table::TYPE_TEXT,
-                                                255,
-                                                ['nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'account_id',
-                                                Table::TYPE_INTEGER,
-                                                null,
-                                                ['unsigned' => true, 'nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'marketplace_id',
-                                                Table::TYPE_INTEGER,
-                                                null,
-                                                ['unsigned' => true, 'nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'template_id',
-                                                Table::TYPE_TEXT,
-                                                255,
-                                                ['nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'update_date',
-                                                Table::TYPE_DATETIME,
-                                                null,
-                                                ['default' => null]
-                                            )
-                                            ->addColumn(
-                                                'create_date',
-                                                Table::TYPE_DATETIME,
-                                                null,
-                                                ['default' => null]
-                                            )
-                                            ->addIndex('title', 'title')
-                                            ->setOption('type', 'INNODB')
-                                            ->setOption('charset', 'utf8')
-                                            ->setOption('collate', 'utf8_general_ci')
-                                            ->setOption('row_format', 'dynamic');
+        $amazonTemplateShippingTableName = $this
+            ->getFullTableName(TablesHelper::TABLE_AMAZON_TEMPLATE_SHIPPING);
+        $amazonTemplateShippingTable = $this
+            ->getConnection()
+            ->newTable($amazonTemplateShippingTableName)
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_ID,
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'unsigned' => true,
+                    'primary' => true,
+                    'nullable' => false,
+                    'auto_increment' => true,
+                ]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_TITLE,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_ACCOUNT_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_MARKETPLACE_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_MODE,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_TEMPLATE_ID,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_CUSTOM_ATTRIBUTE,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_UPDATE_DATE,
+                Table::TYPE_DATETIME,
+                null,
+                ['default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_CREATE_DATE,
+                Table::TYPE_DATETIME,
+                null,
+                ['default' => null]
+            )
+            ->addIndex('title', \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_TITLE)
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci')
+            ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($amazonTemplateShippingTable);
 
-        $amazonDictionaryTemplateShippingTable = $this->getConnection()->newTable(
-            $this->getFullTableName('amazon_dictionary_template_shipping')
-        )
-                                            ->addColumn(
-                                                'id',
-                                                Table::TYPE_INTEGER,
-                                                null,
-                                                [
-                                                    'unsigned' => true,
-                                                    'primary' => true,
-                                                    'nullable' => false,
-                                                    'auto_increment' => true,
-                                                ]
-                                            )
-                                            ->addColumn(
-                                                'account_id',
-                                                Table::TYPE_INTEGER,
-                                                null,
-                                                ['unsigned' => true, 'nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'template_id',
-                                                Table::TYPE_TEXT,
-                                                255,
-                                                ['nullable' => false]
-                                            )
-                                            ->addColumn(
-                                                'title',
-                                                Table::TYPE_TEXT,
-                                                255,
-                                                ['nullable' => false]
-                                            )
-                                            ->addIndex('account_id', 'account_id')
-                                            ->setOption('type', 'INNODB')
-                                            ->setOption('charset', 'utf8')
-                                            ->setOption('collate', 'utf8_general_ci')
-                                            ->setOption('row_format', 'dynamic');
+        $amazonDictionaryTemplateShippingTableName = $this
+            ->getFullTableName(TablesHelper::TABLE_AMAZON_DICTIONARY_TEMPLATE_SHIPPING);
+        $amazonDictionaryTemplateShippingTable = $this
+            ->getConnection()
+            ->newTable($amazonDictionaryTemplateShippingTableName)
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Dictionary\TemplateShipping::COLUMN_ID,
+                Table::TYPE_INTEGER,
+                null,
+                [
+                    'unsigned' => true,
+                    'primary' => true,
+                    'nullable' => false,
+                    'auto_increment' => true,
+                ]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Dictionary\TemplateShipping::COLUMN_ACCOUNT_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Dictionary\TemplateShipping::COLUMN_TEMPLATE_ID,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Dictionary\TemplateShipping::COLUMN_TITLE,
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addIndex(
+                'account_id',
+                \Ess\M2ePro\Model\ResourceModel\Amazon\Dictionary\TemplateShipping::COLUMN_ACCOUNT_ID
+            )
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci')
+            ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($amazonDictionaryTemplateShippingTable);
 
         $amazonTemplateProductTaxCodeTable = $this->getConnection()->newTable(

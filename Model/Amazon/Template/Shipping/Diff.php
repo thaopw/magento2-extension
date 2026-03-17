@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\Amazon\Template\Shipping;
 
@@ -18,7 +14,9 @@ class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
     public function isDetailsDifferent(): bool
     {
         $keys = [
-            'template_id'
+            'mode',
+            'template_id',
+            'custom_attribute',
         ];
 
         return $this->isSettingsDifferent($keys);

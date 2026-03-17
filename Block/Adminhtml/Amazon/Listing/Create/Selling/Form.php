@@ -30,8 +30,10 @@ class Form extends AbstractForm
     private $sessionDataHelper;
     /** @var \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService */
     private AmazonListing\OfferImagesFormService $offerImagesFormService;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplatesRepository;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplatesRepository,
         \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesFormService,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Helper\Magento\Attribute $magentoAttributeHelper,
@@ -49,6 +51,7 @@ class Form extends AbstractForm
         $this->sessionDataHelper = $sessionDataHelper;
 
         parent::__construct($context, $registry, $formFactory, $data);
+        $this->shippingTemplatesRepository = $shippingTemplatesRepository;
     }
 
     protected function _prepareForm()
@@ -391,7 +394,7 @@ HTML
             ]
         );
 
-        $shippingTemplates = $this->getShippingTemplates($formData['account_id']);
+        $shippingTemplates = $this->getShippingTemplates((int)$formData['account_id']);
         $style = count($shippingTemplates) === 0 ? 'display: none' : '';
 
         $templateShipping = $this->elementFactory->create(
@@ -1392,27 +1395,16 @@ JS
         return $result['items'];
     }
 
-    /**
-     * @param int $accountId
-     *
-     * @return mixed
-     * @throws \Ess\M2ePro\Model\Exception\Logic
-     */
-    protected function getShippingTemplates(int $accountId)
+    protected function getShippingTemplates(int $accountId): array
     {
-        $collection = $this->activeRecordFactory->getObject('Amazon_Template_Shipping')->getCollection();
-        $collection->addFieldToFilter('account_id', $accountId);
-        $collection->setOrder('title', \Magento\Framework\Data\Collection::SORT_ORDER_ASC);
-        $collection->getSelect()->reset(\Magento\Framework\DB\Select::COLUMNS)->columns(
-            [
-                'value' => 'id',
-                'label' => 'title',
-            ]
-        );
+        $templates = $this->shippingTemplatesRepository->getByAccountId($accountId);
 
-        $result = $collection->toArray();
-
-        return $result['items'];
+        return array_map(function (\Ess\M2ePro\Model\Amazon\Template\Shipping $template) {
+            return [
+                'value' => $template->getId(),
+                'label' => $template->getTitle(),
+            ];
+        }, $templates);
     }
 
     /**

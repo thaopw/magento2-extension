@@ -1,19 +1,23 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Block\Adminhtml\Amazon\Template\Shipping;
 
-/**
- * Class \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Shipping\Edit
- */
 class Edit extends \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Edit
 {
-    //########################################
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping $shippingTemplate;
+
+    public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping $shippingTemplate,
+        \Ess\M2ePro\Block\Adminhtml\Magento\Context\Widget $context,
+        \Ess\M2ePro\Helper\Data $dataHelper,
+        \Ess\M2ePro\Helper\Data\GlobalData $globalDataHelper,
+        array $data = []
+    ) {
+        $this->shippingTemplate = $shippingTemplate;
+        parent::__construct($context, $dataHelper, $globalDataHelper, $data);
+    }
 
     public function _construct()
     {
@@ -49,8 +53,7 @@ class Edit extends \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Edit
 
         if (
             !$isSaveAndClose
-            && $this->globalDataHelper->getValue('tmp_template')
-            && $this->globalDataHelper->getValue('tmp_template')->getId()
+            && !$this->shippingTemplate->isObjectNew()
         ) {
             // ---------------------------------------
             $this->addButton('duplicate', [
@@ -128,5 +131,18 @@ class Edit extends \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Edit
         // ---------------------------------------
     }
 
-    //########################################
+    protected function _prepareLayout()
+    {
+        $formBlock = $this
+            ->getLayout()
+            ->createBlock(
+                \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Shipping\Edit\Form::class,
+                '',
+                ['shippingTemplate' => $this->shippingTemplate]
+            );
+
+        $this->setChild('form', $formBlock);
+
+        return parent::_prepareLayout();
+    }
 }

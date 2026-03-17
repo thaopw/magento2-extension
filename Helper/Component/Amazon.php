@@ -71,8 +71,6 @@ class Amazon
     private $cachePermanent;
     /** @var \Ess\M2ePro\Model\Config\Manager */
     private $config;
-    /** @var TemplateShippingDictionaryCollectionFactory */
-    private $templateShippingDictionaryCollectionFactory;
     /** @var \Ess\M2ePro\Model\ActiveRecord\Factory  */
     protected $activeRecordFactory;
     /** @var \Ess\M2ePro\Model\ResourceModel\Account\CollectionFactory */
@@ -87,7 +85,6 @@ class Amazon
     public function __construct(
         \Ess\M2ePro\Model\ResourceModel\Account\CollectionFactory $accountCollectionFactory,
         \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
-        TemplateShippingDictionaryCollectionFactory $templateShippingDictionaryCollectionFactory,
         \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory,
         \Magento\Directory\Model\ResourceModel\Region\Collection $regionCollection,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
@@ -102,7 +99,6 @@ class Amazon
         $this->amazonShippingMapCollectionFactory = $amazonShippingMapCollectionFactory;
         $this->accountCollectionFactory = $accountCollectionFactory;
         $this->activeRecordFactory = $activeRecordFactory;
-        $this->templateShippingDictionaryCollectionFactory = $templateShippingDictionaryCollectionFactory;
         $this->countryCollectionFactory = $countryCollectionFactory;
         $this->regionCollection = $regionCollection;
         $this->amazonFactory = $amazonFactory;
@@ -311,18 +307,6 @@ class Amazon
         );
 
         return $amazonAccount->getMarketplaceId();
-    }
-
-    /**
-     * @param int $accountId
-     *
-     * @return array
-     */
-    public function getTemplateShippingDictionary(int $accountId): array
-    {
-        $collection = $this->templateShippingDictionaryCollectionFactory->create()->appendFilterAccountId($accountId);
-
-        return $collection->toArray();
     }
 
     /**

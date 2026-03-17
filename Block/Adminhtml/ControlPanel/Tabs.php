@@ -111,6 +111,14 @@ class Tabs extends AbstractHorizontalTabs
                 ->toHtml(),
         ]);
 
+        $this->addTab(HelperControlPanel::TAB_LOGS_READER, [
+            'label' => __('Logs Reader'),
+            'content' => $this
+                ->getLayout()
+                ->createBlock(\Ess\M2ePro\Block\Adminhtml\ControlPanel\Tabs\LogsReader::class)
+                ->toHtml(),
+        ]);
+
         $this->setActiveTab($activeTab);
 
         return parent::_prepareLayout();

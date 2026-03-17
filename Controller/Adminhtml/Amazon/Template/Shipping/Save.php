@@ -1,31 +1,41 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping;
 
-use Ess\M2ePro\Controller\Adminhtml\Amazon\Template;
-use Ess\M2ePro\Helper\Data;
-
-/**
- * Class \Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping\Save
- */
-class Save extends Template
+class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Template
 {
-    /** @var \Ess\M2ePro\Helper\Url */
-    private $urlHelper;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository;
+    private \Ess\M2ePro\Model\Amazon\Template\ShippingFactory $templateShippingFactory;
+    private \Ess\M2ePro\Helper\Url $urlHelper;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $snapshotBuilderFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\BuilderFactory $builderFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $diffFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\AffectedListingsProductsFactory $affectedListingsProductsFactory;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $changeProcessorFactory;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository,
+        \Ess\M2ePro\Model\Amazon\Template\ShippingFactory $templateShippingFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $snapshotBuilderFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\BuilderFactory $builderFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $diffFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\AffectedListingsProductsFactory $affectedListingsProductsFactory,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $changeProcessorFactory,
         \Ess\M2ePro\Helper\Url $urlHelper,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Controller\Adminhtml\Context $context
     ) {
         parent::__construct($amazonFactory, $context);
+        $this->templateShippingRepository = $templateShippingRepository;
+        $this->templateShippingFactory = $templateShippingFactory;
         $this->urlHelper = $urlHelper;
+        $this->snapshotBuilderFactory = $snapshotBuilderFactory;
+        $this->builderFactory = $builderFactory;
+        $this->diffFactory = $diffFactory;
+        $this->affectedListingsProductsFactory = $affectedListingsProductsFactory;
+        $this->changeProcessorFactory = $changeProcessorFactory;
     }
 
     public function execute()
@@ -36,42 +46,39 @@ class Save extends Template
 
         $id = $this->getRequest()->getParam('id');
 
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping $model */
-        $model = $this->activeRecordFactory->getObjectLoaded('Amazon_Template_Shipping', $id, null, false);
+        $model = $this->templateShippingRepository->find((int)$id);
 
         if ($model === null) {
-            $model = $this->activeRecordFactory->getObject('Amazon_Template_Shipping');
+            $model = $this->templateShippingFactory->create();
         }
 
         $oldData = [];
 
         if (!empty($id)) {
-            /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilder $snapshotBuilder */
-            $snapshotBuilder = $this->modelFactory->getObject('Amazon_Template_Shipping_SnapshotBuilder');
+            $snapshotBuilder = $this->snapshotBuilderFactory->create();
             $snapshotBuilder->setModel($model);
             $oldData = $snapshotBuilder->getSnapshot();
         }
 
-        $this->modelFactory->getObject('Amazon_Template_Shipping_Builder')->build($model, $post->toArray());
+        $builder = $this->builderFactory->create();
+        $builder->build($model, $post->toArray());
 
-        $snapshotBuilder = $this->modelFactory->getObject('Amazon_Template_Shipping_SnapshotBuilder');
+        $snapshotBuilder = $this->snapshotBuilderFactory->create();
         $snapshotBuilder->setModel($model);
         $newData = $snapshotBuilder->getSnapshot();
 
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\Diff $diff */
-        $diff = $this->modelFactory->getObject('Amazon_Template_Shipping_Diff');
+        $diff = $this->diffFactory->create();
         $diff->setNewSnapshot($newData);
         $diff->setOldSnapshot($oldData);
 
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\AffectedListingsProducts $affectedListingsProducts */
-        $affectedListingsProducts = $this->modelFactory->getObject('Amazon_Template_Shipping_AffectedListingsProducts');
+        $affectedListingsProducts = $this->affectedListingsProductsFactory->create();
         $affectedListingsProducts->setModel($model);
 
-        /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessor $changeProcessor */
-        $changeProcessor = $this->modelFactory->getObject('Amazon_Template_Shipping_ChangeProcessor');
+        $changeProcessor = $this->changeProcessorFactory->create();
         $changeProcessor->process(
             $diff,
-            $affectedListingsProducts->getObjectsData(['id', 'status'], ['only_physical_units' => true])
+            $affectedListingsProducts
+                ->getObjectsData(['id', 'status'], ['only_physical_units' => true])
         );
 
         $this->getMessageManager()->addSuccess(__('Policy was saved'));

@@ -1,0 +1,57 @@
+<?php
+/**
+ * @var \Ess\M2ePro\Block\Adminhtml\ControlPanel\Tabs\LogsReader $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+
+<link rel="stylesheet" type="text/css" href="<?= /* @noEscape */ $block->getViewFileUrl('Ess_M2ePro::css/logs_reader.css') ?>" />
+
+<style>
+    :root {
+        --loader-image-url: url('<?= /* @noEscape */ $block->getViewFileUrl('images/loader-2.gif') ?>');
+    }
+</style>
+
+<div id="logs_reader_main_container" data-mage-init='{
+    "Ess_M2ePro/js/ControlPanel/LogsReader": {
+        "getFileContentUrl": "<?= /* @noEscape */$block->getFileContentUrl() ?>",
+        "pageSize": <?= \Ess\M2ePro\Model\ControlPanel\LogsReader\FileReader::READ_LINES_LIMIT ?>,
+        "defaultLogFile": "<?= /* @noEscape */ $block->getDefaultLogFile() ?>"
+    }
+}'>
+    <div class="header-toolbar">
+        <div class="title-wrapper">
+            <h1 style="display:inline; margin:0;">
+                <?= $escaper->escapeHtml(__('Logs Reader')) ?>
+            </h1>
+        </div>
+        <div class="info">
+            <span id="current_file_name" class="current-file-info">
+                <?= $escaper->escapeHtml(__('File not selected')) ?>
+            </span>
+            <span class="fullscreen-hint">
+                <?= $escaper->escapeHtml(__('(F11 — full screen)')) ?>
+            </span>
+        </div>
+        <div class="actions">
+            <button type="button" id="refresh_content" class="action-default">
+                <span><?= $escaper->escapeHtml(__('Refresh')) ?></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="log-container">
+            <div id="load_more_container" style="display:none;">
+                <button id="load_more_btn" type="button">
+                    <?= $escaper->escapeHtml(__('Load previous 2000 lines...')) ?>
+                </button>
+            </div>
+            <div class="log-viewer">
+                <div id="line_numbers" class="line-numbers"></div>
+                <textarea id="log_textarea" spellcheck="false" readonly></textarea>
+            </div>
+        </div>
+    </div>
+</div>

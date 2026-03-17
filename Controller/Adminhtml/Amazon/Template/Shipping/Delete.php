@@ -1,58 +1,71 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping;
 
-use Ess\M2ePro\Controller\Adminhtml\Amazon\Template;
-
-/**
- * Class \Ess\M2ePro\Controller\Adminhtml\Amazon\Template\Shipping\Delete
- */
-class Delete extends Template
+class Delete extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Template
 {
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\IsLocked $isLocked;
+
+    public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $templateShippingRepository,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\IsLocked $isLocked,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Ess\M2ePro\Controller\Adminhtml\Context $context
+    ) {
+        parent::__construct($amazonFactory, $context);
+        $this->templateShippingRepository = $templateShippingRepository;
+        $this->isLocked = $isLocked;
+    }
+
     public function execute()
     {
-        $ids = $this->getRequestIds();
-
-        if (count($ids) == 0) {
-            $this->getMessageManager()->addError($this->__('Please select Item(s) to remove.'));
+        $idsToDelete = $this->getRequestIds();
+        if (count($idsToDelete) == 0) {
+            $this
+                ->getMessageManager()
+                ->addError(__('Please select Item(s) to remove.'));
 
             return $this->_redirect('*/amazon_template/index');
         }
 
         $deleted = $locked = 0;
-        foreach ($ids as $id) {
-            /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping $template */
-            $template = $this->activeRecordFactory->getObjectLoaded(
-                'Amazon_Template_Shipping',
-                $id,
-                null,
-                false
-            );
 
-            if ($template === null) {
+        $objects = $this->templateShippingRepository->getByIds($idsToDelete);
+        foreach ($objects as $template) {
+            if ($this->isLocked->execute($template->getId())) {
+                $locked++;
+
                 continue;
             }
 
-            if ($template->isLocked()) {
-                $locked++;
-            } else {
-                $template->delete();
-                $deleted++;
-            }
+            $this->templateShippingRepository->delete($template);
+            $deleted++;
         }
 
-        $tempString = $this->__('%amount% record(s) were deleted.', $deleted);
-        $deleted && $this->getMessageManager()->addSuccess($tempString);
+        if ($deleted) {
+            $this
+                ->getMessageManager()
+                ->addSuccess(
+                    __(
+                        '%deleted_count record(s) were deleted.',
+                        ['deleted_count' => $deleted]
+                    )
+                );
+        }
 
-        $tempString = $this->__('%amount% record(s) are used in Listing(s).', $locked) . ' ';
-        $tempString .= $this->__('Policy must not be in use to be deleted.');
-        $locked && $this->getMessageManager()->addError($tempString);
+        if ($locked) {
+            $this
+                ->getMessageManager()
+                ->addError(
+                    __(
+                        '%locked_count record(s) are used in Listing(s). Policy must not be in use to be deleted.',
+                        ['locked_count' => $locked]
+                    )
+                );
+        }
 
         return $this->_redirect('*/amazon_template/index');
     }

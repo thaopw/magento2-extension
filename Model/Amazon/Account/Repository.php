@@ -38,6 +38,18 @@ class Repository
         return $account;
     }
 
+    public function get(int $accountId): \Ess\M2ePro\Model\Amazon\Account
+    {
+        $account = $this->find($accountId);
+        if ($account === null) {
+            throw new \Ess\M2ePro\Model\Exception\Logic(
+                sprintf('Account with ID %s does not exist', $accountId)
+            );
+        }
+
+        return $account;
+    }
+
     /**
      * @return \Ess\M2ePro\Model\Amazon\Account[]
      */
@@ -52,8 +64,9 @@ class Repository
         return array_values($collection->getItems());
     }
 
-    public function findWithEnabledFbaInventoryByMerchantId(string $merchantId): ?\Ess\M2ePro\Model\Amazon\Account
-    {
+    public function findWithEnabledFbaInventoryByMerchantId(
+        string $merchantId
+    ): ?\Ess\M2ePro\Model\Amazon\Account {
         $collection = $this->collectionFactory->create();
         $collection->addFieldToFilter(
             \Ess\M2ePro\Model\ResourceModel\Amazon\Account::COLUMN_MERCHANT_ID,
@@ -70,16 +83,18 @@ class Repository
         return $account->isObjectNew() ? null : $account;
     }
 
-    public function isExistsWithMerchantId(string $merchantId): bool
-    {
+    public function isExistsWithMerchantId(
+        string $merchantId
+    ): bool {
         return !empty($this->retrieveByMerchantId($merchantId));
     }
 
     /**
      * @return \Ess\M2ePro\Model\Amazon\Account[]
      */
-    public function retrieveByMerchantId(string $merchantId): array
-    {
+    public function retrieveByMerchantId(
+        string $merchantId
+    ): array {
         $this->load();
 
         return $this->entitiesGroupByMerchantId[$merchantId] ?? [];
@@ -88,8 +103,9 @@ class Repository
     /**
      * @return int[]
      */
-    public function retrieveEntityIdsByMerchantId(string $merchantId): array
-    {
+    public function retrieveEntityIdsByMerchantId(
+        string $merchantId
+    ): array {
         $ids = [];
         foreach ($this->retrieveByMerchantId($merchantId) as $account) {
             $ids[] = (int)$account->getId();
@@ -98,8 +114,9 @@ class Repository
         return $ids;
     }
 
-    public function getFistByMerchantId(string $merchantId): \Ess\M2ePro\Model\Amazon\Account
-    {
+    public function getFistByMerchantId(
+        string $merchantId
+    ): \Ess\M2ePro\Model\Amazon\Account {
         $accounts = $this->retrieveByMerchantId($merchantId);
 
         return reset($accounts);

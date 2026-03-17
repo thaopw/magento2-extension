@@ -1,44 +1,35 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Block\Adminhtml\Amazon\Template\Shipping\Edit;
 
 class Form extends \Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm
 {
-    protected $formData;
-    private $accountData = [];
+    protected array $formData;
 
-    /** @var \Ess\M2ePro\Helper\Magento\Attribute */
-    protected $magentoAttributeHelper;
-    /** @var \Ess\M2ePro\Helper\Data */
-    private $dataHelper;
-    /** @var \Ess\M2ePro\Helper\Data\GlobalData */
-    private $globalDataHelper;
-    /** @var \Ess\M2ePro\Helper\Component\Amazon */
-    private $amazonHelper;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping $shippingTemplate;
+    private \Ess\M2ePro\Model\Amazon\Template\Shipping\BuilderFactory $templateShippingBuilderFactory;
+    private \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $templateShippingRepository;
     private \Ess\M2ePro\Model\Amazon\Account\Repository $amazonAccountRepository;
+    private \Ess\M2ePro\Helper\Magento\Attribute $magentoAttributeHelper;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Template\Shipping $shippingTemplate,
+        \Ess\M2ePro\Model\Amazon\Template\Shipping\BuilderFactory $templateShippingBuilderFactory,
+        \Ess\M2ePro\Model\Amazon\Dictionary\TemplateShipping\Repository $templateShippingRepository,
         \Ess\M2ePro\Model\Amazon\Account\Repository $amazonAccountRepository,
-        \Ess\M2ePro\Helper\Component\Amazon $amazonHelper,
         \Ess\M2ePro\Helper\Magento\Attribute $magentoAttributeHelper,
         \Ess\M2ePro\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Data\FormFactory $formFactory,
-        \Ess\M2ePro\Helper\Data $dataHelper,
-        \Ess\M2ePro\Helper\Data\GlobalData $globalDataHelper,
         array $data = []
     ) {
-        $this->magentoAttributeHelper = $magentoAttributeHelper;
-        $this->dataHelper = $dataHelper;
-        $this->globalDataHelper = $globalDataHelper;
-        $this->amazonHelper = $amazonHelper;
+        $this->shippingTemplate = $shippingTemplate;
+        $this->templateShippingBuilderFactory = $templateShippingBuilderFactory;
+        $this->templateShippingRepository = $templateShippingRepository;
         $this->amazonAccountRepository = $amazonAccountRepository;
+        $this->magentoAttributeHelper = $magentoAttributeHelper;
         parent::__construct($context, $registry, $formFactory, $data);
     }
 
@@ -50,27 +41,11 @@ class Form extends \Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm
     {
         parent::_construct();
         $this->setId('amazonTemplateShippingEditForm');
-
-        $accounts = $this->amazonHelper->getAccounts();
-        $accounts = $accounts->toArray();
-        $this->accountData = $accounts['items'];
     }
 
-    /**
-     * @return \Ess\M2ePro\Block\Adminhtml\Amazon\Template\Shipping\Edit\Form
-     * @throws \Magento\Framework\Exception\LocalizedException|\Ess\M2ePro\Model\Exception\Logic
-     */
     protected function _prepareForm(): self
     {
-        $button = $this->getLayout()->createBlock(\Ess\M2ePro\Block\Adminhtml\Magento\Button::class)->addData(
-            [
-                'id' => 'refresh_templates',
-                'label' => $this->__('Refresh Templates'),
-                'onclick' => 'AmazonTemplateShippingObj.refreshTemplateShipping()',
-                'class' => 'action-primary',
-                'style' => 'margin-left: 70px;',
-            ]
-        );
+        $formData = $this->getFormData();
 
         $form = $this->_formFactory->create(
             [
@@ -84,70 +59,40 @@ class Form extends \Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm
             ]
         );
 
-        $formData = $this->getFormData();
+        $form->addField(
+            'help',
+            self::HELP_BLOCK,
+            [
+                'content' => __('<p style="margin: 20px 0 !important">Use this policy to configure what shipping settings ' .
+                    'and how are applied to your Amazon listings. You can either <strong>select a specific ' .
+                    'shipping template from your Amazon Seller Central account</strong> or <strong>map a ' .
+                    'Magento product attribute that contains the template name</strong>, ' .
+                    'allowing different products to use different Amazon shipping templates automatically.<p>'),
+            ]
+        );
 
-        $templates = [];
-
-        if ($formData['account_id']) {
-            $templates = $this->amazonHelper->getTemplateShippingDictionary($formData['account_id']);
-            $templates = $templates['items'];
-        }
-
-        $fieldset = $form->addFieldset(
+        $generalFieldset = $form->addFieldset(
             'magento_block_amazon_template_shipping_general',
             [
-                'legend' => $this->__('General'),
+                'legend' => __('General'),
                 'collapsable' => false,
             ]
         );
 
-        $fieldset->addField(
-            'title',
-            'text',
-            [
-                'name' => 'title',
-                'label' => $this->__('Title'),
-                'value' => $formData['title'],
-                'class' => 'M2ePro-shipping-tpl-title',
-                'tooltip' => $this->__('Short meaningful Policy Title for your internal use.'),
-                'required' => true,
-            ]
-        );
+        $this->addTitleField($generalFieldset, $formData);
+        $this->addAccountField($generalFieldset, $formData);
 
-        $fieldset->addField(
-            'account_id',
-            self::SELECT,
-            [
-                'name' => 'account_id',
-                'label' => $this->__('Account'),
-                'title' => $this->__('Account'),
-                'values' => $this->getAccountDataOptions(),
-                'value' => $this->formData['account_id'],
-                'required' => true,
-                'disabled' => !empty($this->formData['account_id']),
-            ]
-        );
-
-        $fieldset = $form->addFieldset(
+        $channelFieldset = $form->addFieldset(
             'magento_block_amazon_template_shipping_channel',
             [
-                'legend' => $this->__('Channel'),
+                'legend' => __('Channel'),
                 'collapsable' => false,
             ]
         );
 
-        $fieldset->addField(
-            'template_id',
-            self::SELECT,
-            [
-                'name' => 'template_id',
-                'label' => $this->__('Template'),
-                'value' => $formData['template_id'],
-                'values' => $this->getTemplateDataOptions($templates),
-                'required' => true,
-                'after_element_html' => $button->toHtml(),
-            ]
-        );
+        $this->addModeField($channelFieldset, $formData);
+        $this->addAmazonTemplatesField($channelFieldset, $formData);
+        $this->addMagentoAttributesField($channelFieldset, $formData);
 
         $form->setUseContainer(true);
         $this->setForm($form);
@@ -174,38 +119,17 @@ class Form extends \Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm
                         'close_on_save' => $this->getRequest()->getParam('close_on_save'),
                     ]
                 ),
-                'amazon_template_shipping/refresh' => $this->getUrl(
-                    '*/amazon_template_shipping/refresh/'
-                ),
-                'amazon_template_shipping/getTemplates' => $this->getUrl(
-                    '*/amazon_template_shipping/getTemplates/'
-                ),
+                'amazon_template_shipping/refresh' =>
+                    $this->getUrl('*/amazon_template_shipping/refresh/'),
+                'amazon_template_shipping/getTemplates' =>
+                    $this->getUrl('*/amazon_template_shipping/getTemplates/'),
             ]
         );
-
-        $this->jsTranslator->addTranslations(
-            [
-                'Add Shipping Policy' => $this->__(
-                    'Add Shipping Policy'
-                ),
-
-                'The specified Title is already used for other Policy. Policy Title must be unique.' =>
-                    $this->__('The specified Title is already used for other Policy. Policy Title must be unique.'),
-            ]
-        );
-
-        $formData = $this->getFormData();
-
-        $title = $this->dataHelper->escapeJs($this->dataHelper->escapeHtml($formData['title']));
 
         $this->js->add(
             <<<JS
-M2ePro.formData.id = '{$this->getRequest()->getParam('id')}';
-M2ePro.formData.title = '{$title}';
-
 require(['M2ePro/Amazon/Template/Shipping'], function() {
-    window.AmazonTemplateShippingObj = new AmazonTemplateShipping();
-    window.AmazonTemplateShippingObj.initObservers();
+    window.AmazonTemplateShippingObj = new AmazonTemplateShipping("{$this->getRequest()->getParam('id', '')}");
 });
 JS
         );
@@ -213,78 +137,181 @@ JS
         return parent::_prepareLayout();
     }
 
-    protected function getFormData()
+    private function getFormData(): array
     {
-        if ($this->formData === null) {
-            /** @var \Ess\M2ePro\Model\Amazon\Template\Shipping $model */
-            $model = $this->globalDataHelper->getValue('tmp_template');
-
-            $this->formData = [];
-            if ($model) {
-                $this->formData = $model->toArray();
-            }
-
-            $default = $this->modelFactory->getObject('Amazon_Template_Shipping_Builder')->getDefaultData();
-
-            $this->formData = array_merge($default, $this->formData);
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->formData)) {
+            $tmpFormData = array_merge(
+                $this->templateShippingBuilderFactory->create()->getDefaultData(),
+                $this->shippingTemplate->toArray()
+            );
 
             $accountId = $this->getRequest()->getParam('account_id');
             if (!empty($accountId)) {
-                $this->formData['account_id'] = (int)$accountId;
+                $tmpFormData['account_id'] = (int)$accountId;
             }
+
+            $this->formData = $tmpFormData;
         }
 
         return $this->formData;
     }
 
-    /**
-     * @return array[]
-     */
-    public function getAccountDataOptions(): array
+    private function addTitleField(\Magento\Framework\Data\Form\Element\Fieldset $fieldset, array $formData): void
     {
-        if (!empty($this->formData['account_id'])) {
-            $account = $this->amazonAccountRepository->find($this->formData['account_id']);
-            if ($account === null) {
-                return [];
-            }
+        $fieldset->addField(
+            'title',
+            'text',
+            [
+                'name' => 'title',
+                'label' => __('Title'),
+                'value' => $formData['title'],
+                'class' => 'M2ePro-shipping-tpl-title',
+                'tooltip' => __('Short meaningful Policy Title for your internal use.'),
+                'required' => true,
+            ]
+        );
+    }
+
+    private function addAccountField(\Magento\Framework\Data\Form\Element\Fieldset $fieldset, array $formData): void
+    {
+        $fieldset->addField(
+            'account_id',
+            'hidden',
+            [
+                'name' => 'account_id',
+                'value' => $formData['account_id'],
+            ]
+        );
+
+        $accountOptions = [
+            ['value' => '', 'label' => '', 'attrs' => ['style' => 'display: none;']],
+        ];
+        foreach ($this->amazonAccountRepository->getAll() as $account) {
             /** @var \Ess\M2ePro\Model\Account $parent */
             $parent = $account->getParentObject();
 
-            return [
-                ['value' => $parent->getId(), 'label' => $parent->getTitle()]
+            $accountOptions[] = [
+                'value' => $parent->getId(),
+                'label' => $parent->getTitle(),
             ];
         }
 
-        $optionsResult = [
-            ['value' => '', 'label' => '', 'attrs' => ['style' => 'display: none;']],
-        ];
-        foreach ($this->accountData as $account) {
-            $optionsResult[] = [
-                'value' => $account['id'],
-                'label' => $this->__($account['title']),
-            ];
-        }
-
-        return $optionsResult;
+        $fieldset->addField(
+            'account_select',
+            self::SELECT,
+            [
+                'label' => __('Account'),
+                'title' => __('Account'),
+                'values' => $accountOptions,
+                'value' => $formData['account_id'],
+                'required' => true,
+                'disabled' => !empty($formData['account_id']),
+            ]
+        );
     }
 
-    /**
-     * @param array $templates
-     *
-     * @return array[]
-     */
-    public function getTemplateDataOptions(array $templates): array
+    private function addModeField(\Magento\Framework\Data\Form\Element\Fieldset $fieldset, array $formData): void
     {
-        $optionsResult = [
-            ['value' => '', 'label' => '', 'attrs' => ['style' => 'display: none;']],
+        $modeOptions = [
+            [
+                'label' => __('Amazon Template'),
+                'value' => \Ess\M2ePro\Model\Amazon\Template\Shipping::MODE_AMAZON_TEMPLATE,
+            ],
+            [
+                'label' => __('Magento Attribute'),
+                'value' => \Ess\M2ePro\Model\Amazon\Template\Shipping::MODE_MAGENTO_ATTRIBUTE,
+            ],
         ];
-        foreach ($templates as $template) {
-            $optionsResult[] = [
-                'value' => $template['template_id'],
-                'label' => $this->__($template['title']),
+
+        $fieldset->addField(
+            'template_mode',
+            self::SELECT,
+            [
+                'label' => __('Mode / Source'),
+                'name' => 'mode',
+                'values' => $modeOptions,
+                'value' => $formData['mode'],
+                'required' => true,
+                'tooltip' => __('Choose where shipping settings come from.'),
+            ]
+        );
+    }
+
+    private function addMagentoAttributesField(
+        \Magento\Framework\Data\Form\Element\Fieldset $fieldset,
+        array $formData
+    ): void {
+        $allAttributes = $this->magentoAttributeHelper->getAll();
+        $attributes = $this->magentoAttributeHelper
+            ->filterByInputTypes($allAttributes, ['text']);
+
+        $preparedOptions = [];
+        foreach ($attributes as $attribute) {
+            $preparedOptions[] = [
+                'value' => $attribute['code'],
+                'label' => $this->_escaper->escapeHtml($attribute['label']),
             ];
         }
 
-        return $optionsResult;
+        $fieldset->addField(
+            'magento_attributes',
+            self::SELECT,
+            [
+                'name' => 'custom_attribute',
+                'container_id' => 'magento_attribute_tr',
+                'label' => __('Magento Attribute'),
+                'values' => $preparedOptions,
+                'value' => $formData['custom_attribute'],
+                'required' => true,
+                'create_magento_attribute' => true,
+            ]
+        )->addCustomAttribute('allowed_attribute_types', 'text');
+    }
+
+    private function addAmazonTemplatesField(
+        \Magento\Framework\Data\Form\Element\Fieldset $channelFieldset,
+        array $formData
+    ): void {
+        $resetButton = $this
+            ->getLayout()
+            ->createBlock(\Ess\M2ePro\Block\Adminhtml\Magento\Button::class)
+            ->addData(
+                [
+                    'id' => 'refresh_templates',
+                    'label' => __('Refresh Templates'),
+                    'class' => 'action-primary',
+                    'style' => 'margin-left: 20px;',
+                ]
+            );
+
+        $templates = $this->templateShippingRepository
+            ->getByAccountId((int)$formData['account_id']);
+
+        $templateOptions = [
+            ['value' => '', 'label' => '', 'attrs' => ['style' => 'display: none;']],
+        ];
+
+        foreach ($templates as $template) {
+            $templateOptions[] = [
+                'value' => $template->getTemplateId(),
+                'label' => $template->getTitle(),
+            ];
+        }
+
+        $channelFieldset->addField(
+            'template_id',
+            self::SELECT,
+            [
+                'container_id' => 'amazon_template_tr',
+                'name' => 'template_id',
+                'label' => __('Template'),
+                'value' => $formData['template_id'],
+                'values' => $templateOptions,
+                'required' => true,
+                'tooltip' => __('Select the Amazon shipping template to apply to listings.'),
+                'after_element_html' => $resetButton->toHtml(),
+            ]
+        );
     }
 }

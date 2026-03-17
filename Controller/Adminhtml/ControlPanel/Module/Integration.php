@@ -50,7 +50,11 @@ class Integration extends Command
                 $request->setConfigurator($configurator);
 
                 // @codingStandardsIgnoreLine
-                $result = $request->getRequestData();
+                $result = [
+                    'request_data' => $request->getRequestData(),
+                    'warning_messages' => $request->getWarningMessages(),
+                    'metadata' => $request->getMetaData(),
+                ];
             }
 
             if ($componentMode == 'amazon') {
@@ -74,7 +78,11 @@ class Integration extends Command
                 }
 
                 // @codingStandardsIgnoreLine
-                $result = $request->getRequestData();
+                $result = [
+                    'request_data' => $request->getRequestData(),
+                    'warning_messages' => $request->getWarningMessages(),
+                    'metadata' => $request->getMetaData(),
+                ];
             }
 
             if ($componentMode == 'walmart') {
@@ -98,16 +106,53 @@ class Integration extends Command
                 $request->setConfigurator($configurator);
 
                 // @codingStandardsIgnoreLine
-                $result = $request->getRequestData();
+                $result = [
+                    'request_data' => $request->getRequestData(),
+                    'warning_messages' => $request->getWarningMessages(),
+                    'metadata' => $request->getMetaData(),
+                ];
             }
 
-            $resultBlockHtml = sprintf(
-                '<pre class="card"><code>%s</code></pre>',
-                htmlentities(
-                    $this->jsonEncode($result),
-                    ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
-                )
-            );
+            if (!empty($result)) {
+                $tableHtml = '<table class="table">';
+
+                // Warning Messages Row
+                if (!empty($result['warning_messages'])) {
+                    $tableHtml .= sprintf(
+                        '<tr><td class="label">Warning Messages</td><td>%s</td>',
+                        implode('', array_map(function ($message) {
+                            return "<p>$message</p>";
+                        }, $result['warning_messages']))
+                    );
+                }
+
+                // Request Data Row
+                $tableHtml .= sprintf(
+                    '<tr><td class="label">Request Data</td><td>%s</td>',
+                    sprintf(
+                        '<pre>%s</pre>',
+                        htmlentities(
+                            $this->jsonEncode($result['request_data']),
+                            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+                        )
+                    )
+                );
+
+                // Metadata Row
+                $tableHtml .= sprintf(
+                    '<tr><td class="label">Metadata</td><td>%s</td>',
+                    sprintf(
+                        '<pre>%s</pre>',
+                        htmlentities(
+                            $this->jsonEncode($result['metadata']),
+                            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
+                        )
+                    )
+                );
+
+                $tableHtml .= '</table>';
+                $resultBlockHtml = $tableHtml;
+            }
         }
 
         $formKey = $this->formKey->getFormKey();
