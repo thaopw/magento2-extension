@@ -25,6 +25,7 @@ abstract class Request extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\R
         'qty',
         'price_regular',
         'price_business',
+        'condition',
         'details',
     ];
 
@@ -153,6 +154,14 @@ abstract class Request extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\R
 
         /** @var \Ess\M2ePro\Model\Amazon\Listing\Product\Action\DataBuilder\Price\Business $dataBuilder */
         $dataBuilder = $this->getDataBuilder('price_business');
+
+        return $dataBuilder->getBuilderData();
+    }
+
+    public function getConditionData(): array
+    {
+        /** @var \Ess\M2ePro\Model\Amazon\Listing\Product\Action\DataBuilder\Condition $dataBuilder */
+        $dataBuilder = $this->getDataBuilder('condition');
 
         return $dataBuilder->getBuilderData();
     }

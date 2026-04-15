@@ -99,9 +99,19 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
          * @see \Ess\M2ePro\Model\Walmart\Listing\Product\Instruction\SynchronizationTemplate\Checker\Active::isMeetReviseQtyRequirements
          */
         $activeIsMeetRevise = '
-            base.status = 2 AND (
-                (base.calculated_qty > base.online_qty AND base.online_qty < base.revise_threshold)
-                OR (base.calculated_qty != base.online_qty AND base.calculated_qty < base.revise_threshold)
+            base.status = 2
+            AND (base.online_qty != base.calculated_qty)
+            AND (
+                IF (
+                    base.revise_threshold = 0, 1,
+                    (
+                        (base.revise_threshold >= base.calculated_qty)
+                        OR (
+                            base.online_qty <= base.revise_threshold
+                            AND base.revise_threshold <= base.calculated_qty
+                        )
+                    )
+                )
             )
         ';
         $mainQuery->orWhere($activeIsMeetRevise);
@@ -113,7 +123,7 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
          * @see \Ess\M2ePro\Model\Walmart\Listing\Product\Instruction\SynchronizationTemplate\Checker\Inactive::isMeetRelistRequirements
          */
         $inactiveIsMeetRelist = '
-            base.status IN (1, 3, 4, 5) AND (
+            base.status IN (1, 3, 4, 5, 8) AND (
                 IF(base.relist_when_stopped_manually AND base.status_changer <> 2, FALSE,
                    IF(base.relist_when_product_is_in_stock AND base.is_in_stock = 0, FALSE,
                       IF(base.relist_when_product_status_enabled AND base.product_disabled = 1, FALSE,
@@ -285,7 +295,7 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
                 'IF(
                             ts.revise_update_qty_max_applied_value_mode = 1,
                             ts.revise_update_qty_max_applied_value,
-                            999999
+                            0
                         )'
             )
             ->addSelect(
@@ -298,7 +308,7 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
             )
             ->addSelect(
                 'list_with_qty_greater_or_equal_then',
-                'IF(ts.list_mode = 1 AND ts.list_qty_calculated = 1, ts.list_qty_calculated_value, 999999)'
+                'IF(ts.list_mode = 1 AND ts.list_qty_calculated = 1, ts.list_qty_calculated_value, 0)'
             )
             ->addSelect(
                 'stop_when_product_disabled',
@@ -310,7 +320,7 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
             )
             ->addSelect(
                 'stop_when_qty_less_than',
-                'IF(ts.stop_mode = 1 AND ts.stop_qty_calculated = 1, ts.stop_qty_calculated_value, -999999)'
+                'IF(ts.stop_mode = 1 AND ts.stop_qty_calculated = 1, ts.stop_qty_calculated_value, 0)'
             )
             ->addSelect(
                 'relist_when_stopped_manually',
@@ -326,7 +336,7 @@ abstract class AbstractInventoryTracker implements \Ess\M2ePro\Model\ChangeTrack
             )
             ->addSelect(
                 'relist_when_qty_more_or_equal',
-                'IF(ts.relist_mode = 1 AND ts.relist_qty_calculated = 1, relist_qty_calculated_value, 999999)'
+                'IF(ts.relist_mode = 1 AND ts.relist_qty_calculated = 1, relist_qty_calculated_value, 0)'
             )
             ->from(
                 'ts',

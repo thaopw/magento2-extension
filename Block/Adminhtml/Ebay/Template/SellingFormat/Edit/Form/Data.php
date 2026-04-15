@@ -189,6 +189,7 @@ class Data extends AbstractForm
                 'value' => $formData['listing_type'] != SellingFormat::LISTING_TYPE_ATTRIBUTE
                     ? $formData['listing_type'] : '',
                 'create_magento_attribute' => true,
+                'class' => isset($formData['id']) ? 'disabled' : '',
                 'tooltip' => $this->__(
                     '<b>Auction</b> - your listings will have a starting price and last for the selected listing
                     duration or until you accept a buyer bid.

@@ -262,7 +262,7 @@ class Updating extends \Ess\M2ePro\Model\AbstractModel
 
             $collection->getSelect()->join(
                 ['eit' => $this->activeRecordFactory->getObject('Ebay\Item')->getResource()->getMainTable()],
-                'main_table.product_id = eit.product_id AND eit.account_id = ' . (int)$this->getAccount()->getId(),
+                'second_table.ebay_item_id = eit.id',
                 ['item_id']
             );
             $collection->getSelect()->where('eit.item_id IN (?)', $partReceivedItemsIds);

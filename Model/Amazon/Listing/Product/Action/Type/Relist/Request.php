@@ -39,7 +39,8 @@ class Request extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\Type\Reque
             ],
             $this->getQtyData(),
             $this->getRegularPriceData(),
-            $this->getBusinessPriceData()
+            $this->getBusinessPriceData(),
+            $this->getConditionData(),
         );
 
         if ($this->getVariationManager()->isRelationChildType()) {
