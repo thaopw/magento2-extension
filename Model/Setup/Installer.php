@@ -11017,7 +11017,7 @@ class Installer
                 \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_MODE,
                 Table::TYPE_SMALLINT,
                 null,
-                ['unsigned' => true, 'nullable' => false]
+                ['unsigned' => true, 'nullable' => false, 'default' => 1]
             )
             ->addColumn(
                 \Ess\M2ePro\Model\ResourceModel\Amazon\Template\Shipping::COLUMN_TEMPLATE_ID,
