@@ -237,7 +237,7 @@ class Importer extends \Ess\M2ePro\Model\AbstractModel
         curl_setopt($curlHandler, CURLOPT_TIMEOUT, 30);
 
         curl_exec($curlHandler);
-        curl_close($curlHandler);
+        unset($curlHandler);
 
         fclose($fileHandler);
         // ---------------------------------------

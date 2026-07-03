@@ -75,7 +75,7 @@ class Repricing
         $curlInfo = curl_getinfo($curlObject);
         $errorNumber = curl_errno($curlObject);
 
-        curl_close($curlObject);
+        unset($curlObject);
 
         if ($this->isMaintenance($curlInfo)) {
             throw new \Ess\M2ePro\Model\Exception\Connection(
