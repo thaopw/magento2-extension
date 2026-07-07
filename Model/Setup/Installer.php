@@ -255,116 +255,143 @@ class Installer
                                   ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($moduleConfigTable);
 
-        $listingTable = $this->getConnection()->newTable($this->getFullTableName(TablesHelper::TABLE_LISTING))
-                             ->addColumn(
-                                 'id',
-                                 Table::TYPE_INTEGER,
-                                 null,
-                                 ['unsigned' => true, 'primary' => true, 'nullable' => false, 'auto_increment' => true]
-                             )
-                             ->addColumn(
-                                 'account_id',
-                                 Table::TYPE_INTEGER,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false]
-                             )
-                             ->addColumn(
-                                 'marketplace_id',
-                                 Table::TYPE_INTEGER,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false]
-                             )
-                             ->addColumn(
-                                 'title',
-                                 Table::TYPE_TEXT,
-                                 255,
-                                 ['nullable' => false]
-                             )
-                             ->addColumn(
-                                 'store_id',
-                                 Table::TYPE_INTEGER,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false]
-                             )
-                             ->addColumn(
-                                 'source_products',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 1]
-                             )
-                             ->addColumn(
-                                 'additional_data',
-                                 Table::TYPE_TEXT,
-                                 self::LONG_COLUMN_SIZE,
-                                 ['default' => null]
-                             )
-                             ->addColumn(
-                                 'component_mode',
-                                 Table::TYPE_TEXT,
-                                 10,
-                                 ['default' => null]
-                             )
-                             ->addColumn(
-                                 'auto_mode',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 0]
-                             )
-                             ->addColumn(
-                                 'auto_global_adding_mode',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 0]
-                             )
-                             ->addColumn(
-                                 'auto_global_adding_add_not_visible',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 1]
-                             )
-                             ->addColumn(
-                                 'auto_website_adding_mode',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 0]
-                             )
-                             ->addColumn(
-                                 'auto_website_adding_add_not_visible',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 1]
-                             )
-                             ->addColumn(
-                                 'auto_website_deleting_mode',
-                                 Table::TYPE_SMALLINT,
-                                 null,
-                                 ['unsigned' => true, 'nullable' => false, 'default' => 0]
-                             )
-                             ->addColumn(
-                                 'update_date',
-                                 Table::TYPE_DATETIME,
-                                 null,
-                                 ['default' => null]
-                             )
-                             ->addColumn(
-                                 'create_date',
-                                 Table::TYPE_DATETIME,
-                                 null,
-                                 ['default' => null]
-                             )
-                             ->addIndex('account_id', 'account_id')
-                             ->addIndex('component_mode', 'component_mode')
-                             ->addIndex('marketplace_id', 'marketplace_id')
-                             ->addIndex('store_id', 'store_id')
-                             ->addIndex('title', 'title')
-                             ->addIndex('auto_mode', 'auto_mode')
-                             ->addIndex('auto_global_adding_mode', 'auto_global_adding_mode')
-                             ->addIndex('auto_website_adding_mode', 'auto_website_adding_mode')
-                             ->addIndex('auto_website_deleting_mode', 'auto_website_deleting_mode')
-                             ->setOption('type', 'INNODB')
-                             ->setOption('charset', 'utf8')
-                             ->setOption('collate', 'utf8_general_ci')
-                             ->setOption('row_format', 'dynamic');
+        $listingTableName = $this->getFullTableName(TablesHelper::TABLE_LISTING);
+        $listingTable = $this
+            ->getConnection()
+            ->newTable($listingTableName)
+            ->addColumn(
+                'id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'primary' => true, 'nullable' => false, 'auto_increment' => true]
+            )
+            ->addColumn(
+                'account_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                'marketplace_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                'title',
+                Table::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                'store_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                'source_products',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 1]
+            )
+            ->addColumn(
+                'additional_data',
+                Table::TYPE_TEXT,
+                self::LONG_COLUMN_SIZE,
+                ['default' => null]
+            )
+            ->addColumn(
+                'component_mode',
+                Table::TYPE_TEXT,
+                10,
+                ['default' => null]
+            )
+            ->addColumn(
+                'auto_mode',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                'auto_global_adding_mode',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                'auto_global_adding_add_not_visible',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 1]
+            )
+            ->addColumn(
+                'auto_website_adding_mode',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                'auto_website_adding_add_not_visible',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 1]
+            )
+            ->addColumn(
+                'auto_website_deleting_mode',
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_MODE,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_ADD_NOT_VISIBLE,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 1]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_DELETING_MODE,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false, 'default' => 0]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_CONDITION,
+                Table::TYPE_TEXT,
+                self::LONG_COLUMN_SIZE,
+                ['nullable' => true]
+            )
+            ->addColumn(
+                'update_date',
+                Table::TYPE_DATETIME,
+                null,
+                ['default' => null]
+            )
+            ->addColumn(
+                'create_date',
+                Table::TYPE_DATETIME,
+                null,
+                ['default' => null]
+            )
+            ->addIndex('account_id', 'account_id')
+            ->addIndex('component_mode', 'component_mode')
+            ->addIndex('marketplace_id', 'marketplace_id')
+            ->addIndex('store_id', 'store_id')
+            ->addIndex('title', 'title')
+            ->addIndex('auto_mode', 'auto_mode')
+            ->addIndex('auto_global_adding_mode', 'auto_global_adding_mode')
+            ->addIndex('auto_website_adding_mode', 'auto_website_adding_mode')
+            ->addIndex('auto_website_deleting_mode', 'auto_website_deleting_mode')
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci')
+            ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($listingTable);
 
         $listingAutoCategoryTable = $this->getConnection()->newTable(
@@ -4214,156 +4241,202 @@ class Installer
                               ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($ebayItemTable);
 
-        $ebayListingTable = $this->getConnection()->newTable($this->getFullTableName('ebay_listing'))
-                                 ->addColumn(
-                                     'listing_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'primary' => true, 'nullable' => false]
-                                 )
-                                 ->addColumn(
-                                     'auto_global_adding_template_category_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_global_adding_template_category_secondary_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_global_adding_template_store_category_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_global_adding_template_store_category_secondary_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_website_adding_template_category_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_website_adding_template_category_secondary_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_website_adding_template_store_category_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'auto_website_adding_template_store_category_secondary_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                ->addColumn(
-                                    \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_ADD_PRODUCT_MODE,
-                                    Table::TYPE_TEXT,
-                                    20,
-                                    ['default' => null]
-                                )
-                                 ->addColumn(
-                                     'template_shipping_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'template_return_policy_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'template_description_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'template_selling_format_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'template_synchronization_id',
-                                     Table::TYPE_INTEGER,
-                                     null,
-                                     ['unsigned' => true, 'default' => null]
-                                 )
-                                 ->addColumn(
-                                     'product_add_ids',
-                                     Table::TYPE_TEXT,
-                                     self::LONG_COLUMN_SIZE,
-                                     ['default' => null]
-                                 )
-                                 ->addColumn(
-                                     'parts_compatibility_mode',
-                                     Table::TYPE_TEXT,
-                                     10,
-                                     ['default' => null]
-                                 )
-                                 ->addColumn(
-                                     \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_ADDITIONAL_DATA,
-                                     Table::TYPE_TEXT,
-                                     self::LONG_COLUMN_SIZE,
-                                     ['default' => null]
-                                 )
-                                 ->addIndex(
-                                     'auto_global_adding_template_category_id',
-                                     'auto_global_adding_template_category_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_global_adding_template_category_secondary_id',
-                                     'auto_global_adding_template_category_secondary_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_global_adding_template_store_category_id',
-                                     'auto_global_adding_template_store_category_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_global_adding_template_store_category_secondary_id',
-                                     'auto_global_adding_template_store_category_secondary_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_website_adding_template_category_id',
-                                     'auto_website_adding_template_category_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_website_adding_template_category_secondary_id',
-                                     'auto_website_adding_template_category_secondary_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_website_adding_template_store_category_id',
-                                     'auto_website_adding_template_store_category_id'
-                                 )
-                                 ->addIndex(
-                                     'auto_website_adding_template_store_category_secondary_id',
-                                     'auto_website_adding_template_store_category_secondary_id'
-                                 )
-                                 ->addIndex('template_description_id', 'template_description_id')
-                                 ->addIndex('template_return_policy_id', 'template_return_policy_id')
-                                 ->addIndex('template_selling_format_id', 'template_selling_format_id')
-                                 ->addIndex('template_shipping_id', 'template_shipping_id')
-                                 ->addIndex('template_synchronization_id', 'template_synchronization_id')
-                                 ->setOption('type', 'INNODB')
-                                 ->setOption('charset', 'utf8')
-                                 ->setOption('collate', 'utf8_general_ci')
-                                 ->setOption('row_format', 'dynamic');
+        $ebayListingTableName = $this->getFullTableName(TablesHelper::TABLE_EBAY_LISTING);
+        $ebayListingTable = $this
+            ->getConnection()
+            ->newTable($ebayListingTableName)
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_LISTING_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'primary' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                'auto_global_adding_template_category_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_global_adding_template_category_secondary_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_global_adding_template_store_category_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_global_adding_template_store_category_secondary_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_website_adding_template_category_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_website_adding_template_category_secondary_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_website_adding_template_store_category_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'auto_website_adding_template_store_category_secondary_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_ADD_PRODUCT_MODE,
+                Table::TYPE_TEXT,
+                20,
+                ['default' => null]
+            )
+            ->addColumn(
+                'template_shipping_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'template_return_policy_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'template_description_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'template_selling_format_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_TEMPLATE_SYNCHRONIZATION_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'default' => null]
+            )
+            ->addColumn(
+                'product_add_ids',
+                Table::TYPE_TEXT,
+                self::LONG_COLUMN_SIZE,
+                ['default' => null]
+            )
+            ->addColumn(
+                'parts_compatibility_mode',
+                Table::TYPE_TEXT,
+                10,
+                ['default' => null]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_ADDITIONAL_DATA,
+                Table::TYPE_TEXT,
+                self::LONG_COLUMN_SIZE,
+                ['default' => null]
+            )
+            ->addIndex(
+                'auto_global_adding_template_category_id',
+                'auto_global_adding_template_category_id'
+            )
+            ->addIndex(
+                'auto_global_adding_template_category_secondary_id',
+                'auto_global_adding_template_category_secondary_id'
+            )
+            ->addIndex(
+                'auto_global_adding_template_store_category_id',
+                'auto_global_adding_template_store_category_id'
+            )
+            ->addIndex(
+                'auto_global_adding_template_store_category_secondary_id',
+                'auto_global_adding_template_store_category_secondary_id'
+            )
+            ->addIndex(
+                'auto_website_adding_template_category_id',
+                'auto_website_adding_template_category_id'
+            )
+            ->addIndex(
+                'auto_website_adding_template_category_secondary_id',
+                'auto_website_adding_template_category_secondary_id'
+            )
+            ->addIndex(
+                'auto_website_adding_template_store_category_id',
+                'auto_website_adding_template_store_category_id'
+            )
+            ->addIndex(
+                'auto_website_adding_template_store_category_secondary_id',
+                'auto_website_adding_template_store_category_secondary_id'
+            )
+            ->addIndex(
+                'auto_advanced_filter_adding_template_category_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID
+            )
+            ->addIndex(
+                'auto_advanced_filter_adding_template_category_secondary_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID
+            )
+            ->addIndex(
+                'auto_advanced_filter_adding_template_store_category_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID
+            )
+            ->addIndex(
+                'auto_advanced_filter_adding_template_store_category_secondary_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID
+            )
+            ->addIndex('template_description_id', 'template_description_id')
+            ->addIndex('template_return_policy_id', 'template_return_policy_id')
+            ->addIndex('template_selling_format_id', 'template_selling_format_id')
+            ->addIndex('template_shipping_id', 'template_shipping_id')
+            ->addIndex(
+                'template_synchronization_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_TEMPLATE_SYNCHRONIZATION_ID
+            )
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci')
+            ->setOption('row_format', 'dynamic');
         $this->getConnection()->createTable($ebayListingTable);
 
         $ebayListingAutoCategoryGroup = $this->getConnection()->newTable(

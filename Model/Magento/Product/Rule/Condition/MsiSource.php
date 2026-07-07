@@ -6,8 +6,12 @@ namespace Ess\M2ePro\Model\Magento\Product\Rule\Condition;
 
 class MsiSource extends AbstractModel
 {
+    private bool $isCollectedValues = false;
+
     private \Magento\InventoryApi\Api\SourceRepositoryInterface $sourceRepository;
     private \Magento\Inventory\Model\ResourceModel\SourceItem $sourceItemResource;
+    private \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder;
+    private \Magento\InventoryApi\Api\SourceItemRepositoryInterface $sourceItemRepository;
     private \Ess\M2ePro\Helper\Magento $magentoHelper;
 
     public function __construct(
@@ -25,6 +29,10 @@ class MsiSource extends AbstractModel
                 ->get(\Magento\InventoryApi\Api\SourceRepositoryInterface::class);
             $this->sourceItemResource = $objectManager
                 ->get(\Magento\Inventory\Model\ResourceModel\SourceItem::class);
+            $this->searchCriteriaBuilder = $objectManager
+                ->create(\Magento\Framework\Api\SearchCriteriaBuilder::class);
+            $this->sourceItemRepository = $objectManager
+                ->create(\Magento\InventoryApi\Api\SourceItemRepositoryInterface::class);
         }
 
         parent::__construct($helperData, $helperFactory, $modelFactory, $context, $data);
@@ -51,7 +59,14 @@ class MsiSource extends AbstractModel
 
     public function validate(\Magento\Framework\DataObject $object): bool
     {
-        return $this->validateAttribute($object->getData($this->getFieldName()));
+        if ($this->isCollectedValues) {
+            return $this->validateAttribute($object->getData($this->getFieldName()));
+        }
+
+        $attributeValue = $this
+            ->getQtyBySource((string)$object->getData('sku'), (string)$this->getAttribute());
+
+        return $this->validateAttribute($attributeValue);
     }
 
     public function collectValidatedAttributes(
@@ -79,6 +94,8 @@ class MsiSource extends AbstractModel
             'left'
         );
 
+        $this->isCollectedValues = true;
+
         return $this;
     }
 
@@ -101,5 +118,21 @@ class MsiSource extends AbstractModel
             'si_%s_qty',
             $this->helperData->md5String($this->getAttribute())
         );
+    }
+
+    public function getQtyBySource(string $sku, string $sourceCode): float
+    {
+        $searchCriteria = $this->searchCriteriaBuilder
+            ->addFilter('sku', $sku)
+            ->addFilter('source_code', $sourceCode)
+            ->create();
+
+        $searchResults = $this->sourceItemRepository->getList($searchCriteria);
+
+        foreach ($searchResults->getItems() as $item) {
+            return (float)$item->getQuantity();
+        }
+
+        return 0.0;
     }
 }

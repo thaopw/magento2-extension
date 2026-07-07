@@ -54,6 +54,11 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Ebay\Abstra
      */
     protected $autoWebsiteAddingStoreCategorySecondaryTemplateModel = null;
 
+    private ?\Ess\M2ePro\Model\Ebay\Template\Category $autoAdvancedFilterAddingCategoryTemplateModel = null;
+    private ?\Ess\M2ePro\Model\Ebay\Template\Category $autoAdvancedFilterAddingCategorySecondaryTemplateModel = null;
+    private ?\Ess\M2ePro\Model\Ebay\Template\StoreCategory $autoAdvancedFilterAddingStoreCategoryTemplateModel = null;
+    private ?\Ess\M2ePro\Model\Ebay\Template\StoreCategory $autoAdvancedFilterAddingStoreCategorySecondaryTemplateModel = null;
+
     /**
      * @var \Ess\M2ePro\Model\Ebay\Template\Manager[]
      */
@@ -430,6 +435,80 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Ebay\Abstra
 
     // ---------------------------------------
 
+    public function getAutoAdvancedFilterAddingCategoryTemplate(): ?Template\Category
+    {
+        if ($this->autoAdvancedFilterAddingCategoryTemplateModel === null) {
+            try {
+                $this->autoAdvancedFilterAddingCategoryTemplateModel = $this->activeRecordFactory->getCachedObjectLoaded(
+                    'Ebay_Template_Category',
+                    (int)$this->getAutoAdvancedFilterAddingTemplateCategoryId()
+                );
+            } catch (\Exception $exception) {
+                return $this->autoAdvancedFilterAddingCategoryTemplateModel;
+            }
+        }
+
+        return $this->autoAdvancedFilterAddingCategoryTemplateModel;
+    }
+
+    public function getAutoAdvancedFilterAddingCategorySecondaryTemplate(): ?Template\Category
+    {
+        if ($this->autoAdvancedFilterAddingCategorySecondaryTemplateModel === null) {
+            try {
+                $this->autoAdvancedFilterAddingCategorySecondaryTemplateModel =
+                    $this->activeRecordFactory->getCachedObjectLoaded(
+                        'Ebay_Template_Category',
+                        (int)$this->getAutoAdvancedFilterAddingTemplateCategorySecondaryId(),
+                        null,
+                        ['template']
+                    );
+            } catch (\Exception $exception) {
+                return $this->autoAdvancedFilterAddingCategorySecondaryTemplateModel;
+            }
+        }
+
+        return $this->autoAdvancedFilterAddingCategorySecondaryTemplateModel;
+    }
+
+    public function getAutoAdvancedFilterAddingStoreCategoryTemplate(): ?Template\StoreCategory
+    {
+        if ($this->autoAdvancedFilterAddingStoreCategoryTemplateModel === null) {
+            try {
+                $this->autoAdvancedFilterAddingStoreCategoryTemplateModel = $this->activeRecordFactory->getCachedObjectLoaded(
+                    'Ebay_Template_StoreCategory',
+                    (int)$this->getAutoAdvancedFilterAddingTemplateStoreCategoryId(),
+                    null,
+                    ['template']
+                );
+            } catch (\Exception $exception) {
+                return $this->autoAdvancedFilterAddingStoreCategoryTemplateModel;
+            }
+        }
+
+        return $this->autoAdvancedFilterAddingStoreCategoryTemplateModel;
+    }
+
+    public function getAutoAdvancedFilterAddingStoreCategorySecondaryTemplate(): ?Template\StoreCategory
+    {
+        if ($this->autoAdvancedFilterAddingStoreCategorySecondaryTemplateModel === null) {
+            try {
+                $this->autoAdvancedFilterAddingStoreCategorySecondaryTemplateModel =
+                    $this->activeRecordFactory->getCachedObjectLoaded(
+                        'Ebay_Template_StoreCategory',
+                        (int)$this->getAutoAdvancedFilterAddingTemplateStoreCategorySecondaryId(),
+                        null,
+                        ['template']
+                    );
+            } catch (\Exception $exception) {
+                return $this->autoAdvancedFilterAddingStoreCategorySecondaryTemplateModel;
+            }
+        }
+
+        return $this->autoAdvancedFilterAddingStoreCategorySecondaryTemplateModel;
+    }
+
+    // ----------------------------------------
+
     /**
      * @return \Ess\M2ePro\Model\Account
      */
@@ -692,6 +771,28 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Ebay\Abstra
     }
 
     // ---------------------------------------
+
+    public function getAutoAdvancedFilterAddingTemplateCategoryId()
+    {
+        return $this->getData(\Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID);
+    }
+
+    public function getAutoAdvancedFilterAddingTemplateCategorySecondaryId()
+    {
+        return $this->getData(\Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID);
+    }
+
+    public function getAutoAdvancedFilterAddingTemplateStoreCategoryId()
+    {
+        return $this->getData(\Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID);
+    }
+
+    public function getAutoAdvancedFilterAddingTemplateStoreCategorySecondaryId()
+    {
+        return $this->getData(\Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID);
+    }
+
+    // ----------------------------------------
 
     public function gePartsCompatibilityMode()
     {

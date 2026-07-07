@@ -8,8 +8,6 @@
 
 namespace Ess\M2ePro\Plugin\Product\Action;
 
-use Magento\Catalog\Model\Product\Action as ProductAction;
-
 /**
  * Class \Ess\M2ePro\Plugin\Product\Action\BulkUpdate
  */
@@ -56,6 +54,27 @@ class BulkUpdate extends \Ess\M2ePro\Plugin\AbstractPlugin
         );
 
         return $callback(...$arguments);
+    }
+
+    public function aroundUpdateAttributes($interceptor, \Closure $callback, ...$arguments)
+    {
+        return $this->execute('updateAttributes', $interceptor, $callback, $arguments);
+    }
+
+    public function processUpdateAttributes($interceptor, \Closure $callback, array $arguments)
+    {
+        $result = $callback(...$arguments);
+
+        $this->eventManager->dispatch(
+            'catalog_product_attribute_update_after',
+            [
+                'product_ids' => $arguments[0],
+                'attr_data' => $arguments[1],
+                'store_id' => $arguments[2],
+            ]
+        );
+
+        return $result;
     }
 
     //########################################

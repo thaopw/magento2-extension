@@ -38,6 +38,15 @@ class Reset extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
             'auto_website_adding_template_store_category_secondary_id' => null,
 
             'auto_website_deleting_mode' => \Ess\M2ePro\Model\Listing::DELETING_MODE_NONE,
+
+            'auto_advanced_filter_adding_mode' => \Ess\M2ePro\Model\Listing::ADDING_MODE_NONE,
+            'auto_advanced_filter_adding_add_not_visible' => \Ess\M2ePro\Model\Listing::AUTO_ADDING_ADD_NOT_VISIBLE_YES,
+            'auto_advanced_filter_deleting_mode' => \Ess\M2ePro\Model\Listing::DELETING_MODE_NONE,
+            'auto_advanced_filter_condition' => null,
+            'auto_advanced_filter_adding_template_category_id' => null,
+            'auto_advanced_filter_adding_template_category_secondary_id' => null,
+            'auto_advanced_filter_adding_template_store_category_id' => null,
+            'auto_advanced_filter_adding_template_store_category_secondary_id' => null,
         ];
 
         $listing->addData($data);

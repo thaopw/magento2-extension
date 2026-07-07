@@ -463,6 +463,7 @@ class Config extends AbstractConfig
             ],
             'y26_m06' => [
                 'AddFbmShipPlusSignToAmazonOrder',
+                'AddEbayAutoActionAdvancedFilterMode',
             ]
         ];
     }
@@ -588,6 +589,7 @@ class Config extends AbstractConfig
             \Ess\M2ePro\Setup\Update\y26_m05\AddEbayCoinGrades::class,
             \Ess\M2ePro\Setup\Update\y26_m05\AmazonAddReturnFlow::class,
             \Ess\M2ePro\Setup\Update\y26_m06\AddFbmShipPlusSignToAmazonOrder::class,
+            \Ess\M2ePro\Setup\Update\y26_m06\AddEbayAutoActionAdvancedFilterMode::class,
         ];
     }
 

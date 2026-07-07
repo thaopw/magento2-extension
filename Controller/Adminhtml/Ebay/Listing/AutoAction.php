@@ -59,6 +59,14 @@ abstract class AutoAction extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing
                 }
 
                 return null;
+            case \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER:
+                /** @var \Ess\M2ePro\Model\Ebay\Listing $ebayListing */
+                $ebayListing = $listing->getChildObject();
+                if ($categoryType == \Ess\M2ePro\Helper\Component\Ebay\Category::TYPE_EBAY_MAIN) {
+                    return $ebayListing->getAutoAdvancedFilterAddingCategoryTemplate();
+                }
+
+                return $ebayListing->getAutoAdvancedFilterAddingCategorySecondaryTemplate();
         }
 
         return null;
@@ -113,6 +121,14 @@ abstract class AutoAction extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing
                 }
 
                 return null;
+            case \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER:
+                /** @var \Ess\M2ePro\Model\Ebay\Listing $ebayListing */
+                $ebayListing = $listing->getChildObject();
+                if ($categoryType == \Ess\M2ePro\Helper\Component\Ebay\Category::TYPE_STORE_MAIN) {
+                    return $ebayListing->getAutoAdvancedFilterAddingStoreCategoryTemplate();
+                }
+
+                return $ebayListing->getAutoAdvancedFilterAddingStoreCategorySecondaryTemplate();
         }
 
         return null;

@@ -154,7 +154,7 @@
 
 .scenario-section {
     margin-top: 2rem;
-    flex: 1 1 30%;
+    flex: 1 1 40%;
 }
 
 #queue_list {
@@ -170,7 +170,6 @@
     background: #fff;
     border: 1px solid #eee;
     border-radius: 4px;
-    padding: 10px 15px;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -205,6 +204,7 @@
     width: 30px;
     color: #888;
     font-weight: bold;
+    padding: 10px 0 10px 15px;
 }
 
 .queue-item .group {
@@ -218,14 +218,33 @@
 .queue-item .name {
     flex: 1;
     font-weight: 500;
+    padding: 10px 0 10px 15px;
 }
 
-.queue-item .remove {
-    color: #dc3545;
+.queue-item .icon-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding-right: 5px;
+}
+
+.queue-item .icon-container .icon {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.run-task, .remove-task {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 2rem;
-    padding: 0 5px;
-    line-height: 1;
+}
+
+.run-task:hover, .remove-task:hover {
+    border-radius: 3px;
+    background-color: #e3e3e3;
 }
 
 .empty-state {
@@ -246,7 +265,7 @@
     margin-top: 2rem;
     display: flex;
     flex-direction: column;
-    flex: 1 1 70%;
+    flex: 1 1 60%;
 }
 
 #execution-results {

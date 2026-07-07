@@ -6,8 +6,11 @@ namespace Ess\M2ePro\Model\Magento\Product\Rule\Condition;
 
 class MsiStock extends AbstractModel
 {
+    private bool $isCollectedValues = false;
+
     private \Magento\InventoryApi\Api\StockRepositoryInterface $stockRepository;
     private \Magento\InventoryIndexer\Model\StockIndexTableNameResolverInterface $indexNameResolver;
+    private \Magento\InventorySalesApi\Api\GetProductSalableQtyInterface $getProductSalableQty;
     private \Ess\M2ePro\Helper\Magento $magentoHelper;
 
     public function __construct(
@@ -25,6 +28,8 @@ class MsiStock extends AbstractModel
                 ->get(\Magento\InventoryIndexer\Model\StockIndexTableNameResolverInterface::class);
             $this->stockRepository = $objectManager
                 ->get(\Magento\InventoryApi\Api\StockRepositoryInterface::class);
+            $this->getProductSalableQty = $objectManager
+                ->get(\Magento\InventorySalesApi\Api\GetProductSalableQtyInterface::class);
         }
 
         parent::__construct($helperData, $helperFactory, $modelFactory, $context, $data);
@@ -51,7 +56,14 @@ class MsiStock extends AbstractModel
 
     public function validate(\Magento\Framework\DataObject $object): bool
     {
-        return $this->validateAttribute($object->getData($this->getFieldName()));
+        if ($this->isCollectedValues) {
+            return $this->validateAttribute($object->getData($this->getFieldName()));
+        }
+
+        $validatedValue = $this
+            ->getQtyByStock((string)$object->getData('sku'), (int)$this->getAttribute());
+
+        return $this->validateAttribute($validatedValue);
     }
 
     public function collectValidatedAttributes(
@@ -76,6 +88,8 @@ class MsiStock extends AbstractModel
             'left'
         );
 
+        $this->isCollectedValues = true;
+
         return $this;
     }
 
@@ -87,5 +101,18 @@ class MsiStock extends AbstractModel
     private function getFieldName(): string
     {
         return sprintf('stock_%s_qty', $this->getAttribute());
+    }
+
+    private function getQtyByStock(string $sku, int $stockId): float
+    {
+        if (empty($sku)) {
+            return 0.0;
+        }
+
+        try {
+            return $this->getProductSalableQty->execute($sku, $stockId);
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            return 0.0;
+        }
     }
 }

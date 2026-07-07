@@ -6,15 +6,18 @@ namespace Ess\M2ePro\Model\Ebay\Listing\Product;
 
 class Repository
 {
+    private \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory;
     private \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Product\CollectionFactory $ebayListingProductCollectionFactory;
     private \Ess\M2ePro\Model\ResourceModel\Ebay\Item $ebayItemResource;
 
     public function __construct(
         \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Product\CollectionFactory $ebayListingProductCollectionFactory,
-        \Ess\M2ePro\Model\ResourceModel\Ebay\Item $ebayItemResource
+        \Ess\M2ePro\Model\ResourceModel\Ebay\Item $ebayItemResource,
+        \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory
     ) {
         $this->ebayListingProductCollectionFactory = $ebayListingProductCollectionFactory;
         $this->ebayItemResource = $ebayItemResource;
+        $this->listingProductCollectionFactory = $listingProductCollectionFactory;
     }
 
     public function findByItemId(string $itemId): ?\Ess\M2ePro\Model\Ebay\Listing\Product
@@ -151,5 +154,20 @@ class Repository
         }
 
         return $result;
+    }
+
+    public function isExistProductInListing(int $listingId, int $magentoProductId): bool
+    {
+        $collection = $this->listingProductCollectionFactory->createWithEbayChildMode();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Product::LISTING_ID_FIELD,
+            ['eq' => $listingId]
+        );
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Product::PRODUCT_ID_FIELD,
+            ['eq' => $magentoProductId]
+        );
+
+        return $collection->count() > 0;
     }
 }

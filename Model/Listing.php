@@ -41,6 +41,7 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Parent\AbstractMo
     public const AUTO_MODE_GLOBAL = 1;
     public const AUTO_MODE_WEBSITE = 2;
     public const AUTO_MODE_CATEGORY = 3;
+    public const AUTO_MODE_ADVANCED_FILTER = 4;
 
     public const ADDING_MODE_NONE = 0;
     public const ADDING_MODE_ADD = 1;
@@ -95,7 +96,7 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Parent\AbstractMo
     public function _construct()
     {
         parent::_construct();
-        $this->_init(\Ess\M2ePro\Model\ResourceModel\Listing::class);
+        $this->_init(ResourceModel\Listing::class);
     }
 
     // ---------------------------------------
@@ -392,6 +393,13 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Parent\AbstractMo
         return $this->getData('auto_website_adding_add_not_visible') == self::AUTO_ADDING_ADD_NOT_VISIBLE_YES;
     }
 
+    public function isAutoAdvancedFilterAddingAddNotVisibleYes(): bool
+    {
+        $value = (int)$this->getData(ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_ADD_NOT_VISIBLE);
+
+        return $value === self::AUTO_ADDING_ADD_NOT_VISIBLE_YES;
+    }
+
     //########################################
 
     /**
@@ -482,6 +490,31 @@ class Listing extends \Ess\M2ePro\Model\ActiveRecord\Component\Parent\AbstractMo
     public function isAutoWebsiteDeletingModeStopRemove()
     {
         return $this->getAutoWebsiteDeletingMode() == self::DELETING_MODE_STOP_REMOVE;
+    }
+
+    public function getAutoAdvancedFilterCondition(): string
+    {
+        return (string)$this->getData(ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_CONDITION);
+    }
+
+    public function getAutoAdvancedFilterAddingMode(): int
+    {
+        return (int)$this->getData(ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_MODE);
+    }
+
+    public function isAutoAdvancedFilterAddingModeNone(): bool
+    {
+        return $this->getAutoAdvancedFilterDeletingMode() === self::ADDING_MODE_NONE;
+    }
+
+    public function getAutoAdvancedFilterDeletingMode(): int
+    {
+        return (int)$this->getData(ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_DELETING_MODE);
+    }
+
+    public function isAutoAdvancedFilterDeletingModeNone(): bool
+    {
+        return $this->getAutoAdvancedFilterDeletingMode() === self::DELETING_MODE_NONE;
     }
 
     //########################################

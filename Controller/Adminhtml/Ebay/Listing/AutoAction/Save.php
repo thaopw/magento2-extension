@@ -155,6 +155,15 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
             'auto_website_adding_template_store_category_secondary_id' => null,
 
             'auto_website_deleting_mode' => Listing::DELETING_MODE_NONE,
+
+            'auto_advanced_filter_adding_mode' => Listing::ADDING_MODE_NONE,
+            'auto_advanced_filter_adding_add_not_visible' => Listing::AUTO_ADDING_ADD_NOT_VISIBLE_YES,
+            'auto_advanced_filter_deleting_mode' => Listing::DELETING_MODE_NONE,
+            'auto_advanced_filter_condition' => null,
+            'auto_advanced_filter_adding_template_category_id' => null,
+            'auto_advanced_filter_adding_template_category_secondary_id' => null,
+            'auto_advanced_filter_adding_template_store_category_id' => null,
+            'auto_advanced_filter_adding_template_store_category_secondary_id' => null,
         ];
 
         if ($requestData['auto_mode'] == Listing::AUTO_MODE_GLOBAL) {
@@ -202,6 +211,35 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
         if ($requestData['auto_mode'] == Listing::AUTO_MODE_CATEGORY) {
             $listingData['auto_mode'] = Listing::AUTO_MODE_CATEGORY;
             $this->saveAutoCategory($requestData, $listing->getId());
+        }
+
+        if ($requestData['auto_mode'] == Listing::AUTO_MODE_ADVANCED_FILTER) {
+            $listingData['auto_mode'] = Listing::AUTO_MODE_ADVANCED_FILTER;
+            $listingData['auto_advanced_filter_adding_mode'] = $requestData['auto_advanced_filter_adding_mode'];
+
+            if ($requestData['auto_advanced_filter_adding_mode'] == eBayListing::ADDING_MODE_ADD_AND_ASSIGN_CATEGORY) {
+                $listingData['auto_advanced_filter_adding_template_category_id']
+                    = self::$idsCategoryTemplates['idMainTemplateCategory'];
+                $listingData['auto_advanced_filter_adding_template_category_secondary_id']
+                    = self::$idsCategoryTemplates['idSecondaryTemplateCategory'];
+                $listingData['auto_advanced_filter_adding_template_store_category_id']
+                    = self::$idsCategoryTemplates['idMainStoreTemplateCategory'];
+                $listingData['auto_advanced_filter_adding_template_store_category_secondary_id']
+                    = self::$idsCategoryTemplates['idSecondaryStoreTemplateCategory'];
+            }
+
+            if ($requestData['auto_advanced_filter_adding_mode'] != Listing::ADDING_MODE_NONE) {
+                $listingData['auto_advanced_filter_adding_add_not_visible']
+                    = $requestData['auto_advanced_filter_adding_add_not_visible'];
+            }
+
+            if ($requestData['auto_advanced_filter_deleting_mode'] != Listing::DELETING_MODE_NONE) {
+                $listingData['auto_advanced_filter_deleting_mode']
+                    = $requestData['auto_advanced_filter_deleting_mode'];
+            }
+
+            $listingData['auto_advanced_filter_condition']
+                =  $this->prepareAdvancedFilterCondition($requestData['auto_advanced_filter_condition']);
         }
 
         $listing->addData($listingData);
@@ -266,5 +304,23 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
             $category->setData('category_id', $categoryId);
             $category->save();
         }
+    }
+
+    private function prepareAdvancedFilterCondition($data): ?string
+    {
+        $rulePrefix = 'ebay_auto_action_advanced_filter';
+
+        $post = [];
+        parse_str($data, $post);
+
+        if (empty($post['rule'][$rulePrefix])) {
+            return null;
+        }
+
+        $ruleModel = $this->activeRecordFactory->getObject('Magento_Product_Rule')->setData(
+            ['prefix' => $rulePrefix]
+        );
+
+        return $ruleModel->getSerializedFromPost($post);
     }
 }

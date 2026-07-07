@@ -154,6 +154,7 @@ class Repository
     public function findProductsThatInListings($productIds, array $listingIds): array
     {
         $productCollection = $this->magentoProductCollectionFactory->create();
+        $productCollection->distinct(true);
         $select = $productCollection->getSelect();
         $select->join(
             ['lp' => $this->listingProductResource->getMainTable()],

@@ -10,21 +10,22 @@ namespace Ess\M2ePro\Observer\Import;
 
 class Bunch extends \Ess\M2ePro\Observer\AbstractModel
 {
-    /** @var \Ess\M2ePro\PublicServices\Product\SqlChange */
-    private $publicService;
-    /** @var \Magento\Catalog\Model\Product */
-    private $magentoProduct;
+    private \Ess\M2ePro\PublicServices\Product\SqlChange $publicService;
+    private \Magento\Catalog\Model\Product $magentoProduct;
+    private \Ess\M2ePro\Model\Listing\Auto\Actions\Mode\Factory $listingAutoActionsModeFactory;
 
     public function __construct(
         \Ess\M2ePro\Helper\Factory $helperFactory,
         \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
         \Ess\M2ePro\PublicServices\Product\SqlChange $publicService,
-        \Magento\Catalog\Model\Product $magentoProduct
+        \Magento\Catalog\Model\Product $magentoProduct,
+        \Ess\M2ePro\Model\Listing\Auto\Actions\Mode\Factory $listingAutoActionsModeFactory
     ) {
         parent::__construct($helperFactory, $activeRecordFactory, $modelFactory);
         $this->publicService = $publicService;
         $this->magentoProduct = $magentoProduct;
+        $this->listingAutoActionsModeFactory = $listingAutoActionsModeFactory;
     }
 
     public function process()
@@ -46,6 +47,9 @@ class Bunch extends \Ess\M2ePro\Observer\AbstractModel
 
         foreach ($productIds as $id) {
             $this->publicService->markProductChanged($id);
+            $this->listingAutoActionsModeFactory
+                ->createAdvancedFilterMode()
+                ->synchByProductId((int)$id);
         }
 
         $this->publicService->applyChanges();

@@ -64,4 +64,10 @@ class Factory
             ['magentoProduct' => $product]
         );
     }
+
+    public function createAdvancedFilterMode(): \Ess\M2ePro\Model\Listing\Auto\Actions\AdvancedFilterMode
+    {
+        return $this->objectManager
+            ->create(\Ess\M2ePro\Model\Listing\Auto\Actions\AdvancedFilterMode::class);
+    }
 }

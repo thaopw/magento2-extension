@@ -65,10 +65,16 @@ define([
                 this.saveAndRender();
             })
 
-            this.queueList.on('click', '.remove', (e)=>  {
+            this.queueList.on('click', '.remove-task', (e)=>  {
                 const id = $(e.currentTarget).data('id');
                 this.scenarioQueue = this.scenarioQueue.filter(t => t.id !== id);
                 this.saveAndRender();
+            });
+
+            this.queueList.on('click', '.run-task', (e)=>  {
+                const id = $(e.currentTarget).data('id');
+                const task = this.scenarioQueue.filter(t => t.id === id)[0];
+                this.runTasks([task.code]);
             });
         },
 
@@ -225,7 +231,18 @@ define([
                             <span class="name" title="${task.name}">
                                 <span class="group">[${task.group}]</span> ${task.name}
                             </span>
-                            <span class="remove" data-id="${task.id}" title="Remove">&times;</span>
+                            <div class="icon-container">
+                                <span class="run-task" data-id="${task.id}" title="Run this cron">
+                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M6 19V5L18 12L6 19Z" fill="#009639"/>
+                                    </svg>
+                                </span>
+                                <span class="remove-task" data-id="${task.id}" title="Remove this item">
+                                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M19 5L5 19M5 5L19 19" stroke="#E31C25" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </div>
                         </li>
                     `);
                 this.queueList.append(li);

@@ -136,6 +136,21 @@ define([
             ListingAutoActionObj.loadCategoryChooser(callback);
         },
 
+        advancedFilterStepTwo: function () {
+            ListingAutoActionObj.collectData();
+
+            var callback = function() {
+                jQuery('#'+ListingAutoActionObj.getPopupMode() + 'modal_auto_action > .block_notices:first')
+                        .remove();
+
+                $(ListingAutoActionObj.getPopupMode() + 'confirm_button').show();
+                $(ListingAutoActionObj.getPopupMode() + 'reset_button').show();
+                $(ListingAutoActionObj.getPopupMode() + 'continue_button').hide();
+            };
+
+            ListingAutoActionObj.loadCategoryChooser(callback);
+        },
+
         // ---------------------------------------
 
         collectData: function($super)

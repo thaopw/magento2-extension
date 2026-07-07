@@ -32,6 +32,9 @@ class Index extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
             case \Ess\M2ePro\Model\Listing::AUTO_MODE_CATEGORY:
                 $blockName = \Ess\M2ePro\Block\Adminhtml\Ebay\Listing\AutoAction\Mode\Category::class;
                 break;
+            case \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER:
+                $blockName = \Ess\M2ePro\Block\Adminhtml\Ebay\Listing\AutoAction\Mode\AdvancedFilter::class;
+                break;
             default:
                 $blockName = \Ess\M2ePro\Block\Adminhtml\Ebay\Listing\AutoAction\Mode::class;
                 break;

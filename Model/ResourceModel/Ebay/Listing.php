@@ -10,6 +10,10 @@ class Listing extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Component\Chi
     public const COLUMN_TEMPLATE_SYNCHRONIZATION_ID = 'template_synchronization_id';
     public const COLUMN_ADD_PRODUCT_MODE = 'add_product_mode';
     public const COLUMN_ADDITIONAL_DATA = 'additional_data';
+    public const COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID = 'auto_advanced_filter_adding_template_category_id';
+    public const COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID = 'auto_advanced_filter_adding_template_category_secondary_id';
+    public const COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID = 'auto_advanced_filter_adding_template_store_category_id';
+    public const COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID = 'auto_advanced_filter_adding_template_store_category_secondary_id';
 
     /** @var \Magento\Catalog\Model\Product\Action  */
     protected $catalogProductAction;

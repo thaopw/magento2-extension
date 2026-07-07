@@ -95,6 +95,7 @@ class After extends AbstractAddUpdate
 
         $this->performWebsiteAutoActions();
         $this->performCategoryAutoActions();
+        $this->performAdvancedFilterAutoActions();
     }
 
     //########################################
@@ -509,6 +510,12 @@ class After extends AbstractAddUpdate
             $categoryAutoAction->synchWithAddedCategoryId($websiteId, $changes['added']);
             $categoryAutoAction->synchWithDeletedCategoryId($websiteId, $changes['deleted']);
         }
+    }
+
+    private function performAdvancedFilterAutoActions(): void
+    {
+        $advancedFilterAutoAction = $this->listingAutoActionsModeFactory->createAdvancedFilterMode();
+        $advancedFilterAutoAction->synchByProductId((int)$this->getProduct()->getId());
     }
 
     //########################################

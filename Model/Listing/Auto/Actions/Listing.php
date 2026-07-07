@@ -121,6 +121,11 @@ abstract class Listing
         \Ess\M2ePro\Model\Listing $listing
     );
 
+    abstract public function addProductByAdvancedFilterListing(
+        \Magento\Catalog\Model\Product $product,
+        \Ess\M2ePro\Model\Listing $listing
+    );
+
     /**
      * @param Product $listingProduct
      *

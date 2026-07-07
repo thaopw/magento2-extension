@@ -76,6 +76,8 @@ define([
                 this.popupMode = 'website';
             } else if (mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_CATEGORY')) {
                 this.popupMode = 'category';
+            } else if (mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_ADVANCED_FILTER')) {
+                this.popupMode = 'advanced_filter';
             } else {
                 this.popupMode = '';
             }
@@ -180,20 +182,20 @@ define([
                     {
                         label: M2ePro.translator.translate('Close'),
                         class: 'next close_button',
-                        attr: {style: 'display:none', id: popupMode+'close_button'},
+                        attr: {style: 'display:none', id: popupMode + 'close_button'},
                         closeModal: true
                     },
                     {
                         label: M2ePro.translator.translate('Back'),
-                        attr: {id: popupMode+'cancel_button'},
+                        attr: {id: popupMode + 'cancel_button'},
                         class: 'back',
                         closeModal: true
                     },
                     {
                         label: M2ePro.translator.translate('Reset Auto Rules'),
-                        attr: {style: 'display: none', id: popupMode+'reset_button'},
-                        callback: function() {
-                            ListingAutoActionObj.reset(false, function() {
+                        attr: {style: 'display: none', id: popupMode + 'reset_button'},
+                        callback: function () {
+                            ListingAutoActionObj.reset(false, function () {
                                 ListingAutoActionObj.category_popup.modal('closeModal');
                             });
                         }
@@ -202,8 +204,42 @@ define([
                         label: M2ePro.translator.translate('Add New Rule'),
                         class: 'add_button add primary',
                         attr: {id: 'add_button'},
-                        callback: function() {
+                        callback: function () {
                             ListingAutoActionObj.categoryStepOne();
+                        }
+                    }
+                ];
+            } else if (popupMode.indexOf('advanced_filter') != -1) {
+                popupData = [
+                    {
+                        label: M2ePro.translator.translate('Continue'),
+                        class: 'next continue_button primary forward',
+                        attr: {
+                            id: popupMode + 'continue_button',
+                            style: 'display: none'
+                        },
+                        callback: ListingAutoActionObj.advancedFilterStepTwo
+                    },
+                    {
+                        label: M2ePro.translator.translate('Reset Auto Rules'),
+                        attr: {
+                            id: popupMode+'reset_button',
+                            style: 'display: none'
+                        },
+                        callback: function() {
+                            ListingAutoActionObj.reset(false, function() {
+                                ListingAutoActionObj.advanced_filter_popup.modal('closeModal');
+                            });
+                        }
+                    },
+                    {
+                        label: M2ePro.translator.translate('Complete'),
+                        class: 'confirm_button primary',
+                        attr: {
+                            id: popupMode+'confirm_button'
+                        },
+                        callback: function() {
+                            ListingAutoActionObj.confirm();
                         }
                     }
                 ];
@@ -582,6 +618,20 @@ define([
                             adding_add_not_visible: $('adding_add_not_visible').value,
                             deleting_mode: $('deleting_mode').value,
                             categories: categories_selected_items
+                        };
+                        break;
+
+                    case M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_ADVANCED_FILTER'):
+                        const rulesArray = jQuery('#advanced_filter_modal_auto_action form').serializeArray().filter(function(field) {
+                            return field.name.indexOf('rule') === 0;
+                        });
+
+                        ListingAutoActionObj.internalData = {
+                            auto_mode: $('auto_mode').value,
+                            auto_advanced_filter_adding_mode: $('auto_advanced_filter_adding_mode').value,
+                            auto_advanced_filter_adding_add_not_visible: $('auto_advanced_filter_adding_add_not_visible').value,
+                            auto_advanced_filter_deleting_mode: $('auto_advanced_filter_deleting_mode').value,
+                            auto_advanced_filter_condition: jQuery.param(rulesArray),
                         };
                         break;
                 }

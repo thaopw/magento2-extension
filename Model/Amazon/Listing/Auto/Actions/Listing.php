@@ -214,6 +214,12 @@ class Listing extends \Ess\M2ePro\Model\Listing\Auto\Actions\Listing
         $this->processAddedListingProduct($listingProduct, $params);
     }
 
+    public function addProductByAdvancedFilterListing(
+        \Magento\Catalog\Model\Product $product,
+        \Ess\M2ePro\Model\Listing $listing
+    ): void {
+    }
+
     /**
      * @param \Ess\M2ePro\Model\Listing\Product $listingProduct
      * @param array $params

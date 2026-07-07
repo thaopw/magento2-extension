@@ -34,6 +34,12 @@
                   shared="false" />
     </event>
 
+    <event name="catalog_product_attribute_update_after">
+        <observer name="m2epro_observer_product_attribute_update_after"
+                  instance="Ess\M2ePro\Observer\Product\Attribute\Update\After"
+                  shared="false" />
+    </event>
+
     <!-- websites -->
 
     <event name="catalog_product_website_update_before">

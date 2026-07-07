@@ -46,11 +46,24 @@ class Command extends \Ess\M2ePro\Model\Amazon\Connector\Command\RealTime
                 ],
                 'items' => $items,
             ],
+            'channel' => $this->retrieveChannelFromRequest($request),
         ];
     }
 
     protected function prepareResponseData()
     {
         $this->responseData = new \M2E\AmazonMcf\Model\Amazon\Connector\CreateFulfillmentOrder\Response();
+    }
+
+    /**
+     * @param \M2E\AmazonMcf\Model\Amazon\Connector\CreateFulfillmentOrder\Request $request
+     */
+    private function retrieveChannelFromRequest($request): ?string
+    {
+        if (!method_exists($request, 'getChannel')) {
+            return null;
+        }
+
+        return (string)$request->getChannel();
     }
 }

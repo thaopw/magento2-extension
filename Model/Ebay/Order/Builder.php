@@ -1033,6 +1033,12 @@ class Builder extends AbstractModel
             return false;
         }
 
+        /** @var \Ess\M2ePro\Model\Ebay\Account $ebayAccount */
+        $ebayAccount = $this->account->getChildObject();
+        if ($ebayAccount->isMagentoOrdersCustomerPredefined()) {
+            return false;
+        }
+
         $newEmail = $this->getData('buyer_email');
         $oldEmail = $this->order->getChildObject()->getData('buyer_email');
 

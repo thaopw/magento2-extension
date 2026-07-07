@@ -130,6 +130,38 @@ class Listing extends \Ess\M2ePro\Model\Listing\Auto\Actions\Listing
         $this->processAddedListingProduct($listingProduct, $params);
     }
 
+    public function addProductByAdvancedFilterListing(
+        \Magento\Catalog\Model\Product $product,
+        \Ess\M2ePro\Model\Listing $listing
+    ) {
+        $logData = [
+            'reason' => __METHOD__,
+        ];
+        $listingProduct = $this->getListing()->addProduct(
+            $product,
+            \Ess\M2ePro\Helper\Data::INITIATOR_EXTENSION,
+            false,
+            true,
+            $logData
+        );
+
+        if (!($listingProduct instanceof \Ess\M2ePro\Model\Listing\Product)) {
+            return;
+        }
+
+        /** @var \Ess\M2ePro\Model\Ebay\Listing $eListing */
+        $eListing = $listing->getChildObject();
+
+        $params = [
+            'template_category_id' => $eListing->getAutoAdvancedFilterAddingTemplateCategoryId(),
+            'template_category_secondary_id' => $eListing->getAutoAdvancedFilterAddingTemplateCategorySecondaryId(),
+            'template_store_category_id' => $eListing->getAutoAdvancedFilterAddingTemplateStoreCategoryId(),
+            'template_store_category_secondary_id' => $eListing->getAutoAdvancedFilterAddingTemplateStoreCategorySecondaryId(),
+        ];
+
+        $this->processAddedListingProduct($listingProduct, $params);
+    }
+
     //########################################
 
     protected function processAddedListingProduct(\Ess\M2ePro\Model\Listing\Product $listingProduct, array $params)

@@ -65,6 +65,7 @@ class DetectDirectlyAdded extends \Ess\M2ePro\Model\Cron\Task\AbstractModel
             $this->processCategoriesActions($product);
             $this->processGlobalActions($product);
             $this->processWebsiteActions($product);
+            $this->processAdvancedFilterActions((int)$product->getId());
         }
 
         $lastMagentoProduct = array_pop($products);
@@ -108,6 +109,12 @@ class DetectDirectlyAdded extends \Ess\M2ePro\Model\Cron\Task\AbstractModel
         foreach ($websiteIds as $websiteId) {
             $websiteMode->synchWithAddedWebsiteId($websiteId);
         }
+    }
+
+    private function processAdvancedFilterActions(int $productId)
+    {
+        $autoAction = $this->listingAutoActionsModeFactory->createAdvancedFilterMode();
+        $autoAction->synchByProductId($productId);
     }
 
     //########################################
