@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
-
 namespace Ess\M2ePro\Plugin\MSI\Magento\Inventory\Model\SourceItem\Command;
 
 use Ess\M2ePro\Model\Magento\Product\ChangeProcessor\AbstractModel as ChangeProcessorAbstract;
@@ -13,24 +7,15 @@ use Magento\InventoryApi\Api\Data\SourceItemInterface;
 
 class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
 {
-    /** @var \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory */
-    protected $activeRecordFactory;
-
-    /** @var \Ess\M2ePro\Model\MSI\AffectedProducts */
-    protected $msiAffectedProducts;
-
-    /** @var \Magento\Framework\Api\SearchCriteriaBuilder */
-    protected $searchCriteriaBuilder;
-
-    /** @var \Magento\Catalog\Model\ResourceModel\Product */
-    protected $productResource;
+    protected \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory;
+    protected \Ess\M2ePro\Model\MSI\AffectedProducts $msiAffectedProducts;
+    protected \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder;
+    protected \Magento\Catalog\Model\ResourceModel\Product $productResource;
 
     // ---------------------------------------
 
     /** @var \Magento\Inventory\Model\SourceItemRepository */
     protected $sourceItemRepo;
-
-    //########################################
 
     public function __construct(
         \Ess\M2ePro\Helper\Factory $helperFactory,
@@ -49,8 +34,6 @@ class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
 
         $this->sourceItemRepo = $objectManager->get(\Magento\Inventory\Model\SourceItemRepository::class);
     }
-
-    //########################################
 
     /**
      * @param $interceptor
@@ -75,8 +58,8 @@ class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
     {
         /** @var \Magento\InventoryApi\Api\Data\SourceItemInterface[] $sourceItems */
         $sourceItems = $arguments[0];
+        /** @var \Magento\InventoryApi\Api\Data\SourceItemInterface[] $sourceItemsBefore */
         $sourceItemsBefore = [];
-
         foreach ($sourceItems as $sourceItem) {
             $searchCriteria = $this->searchCriteriaBuilder
                 ->addFilter(SourceItemInterface::SOURCE_CODE, $sourceItem->getSourceCode())
@@ -84,16 +67,14 @@ class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
                 ->create();
 
             foreach ($this->sourceItemRepo->getList($searchCriteria)->getItems() as $beforeSourceItem) {
-                $sourceItemsBefore[$sourceItem->getSourceItemId()] = $beforeSourceItem;
+                $sourceItemsBefore[$sourceItem->getSourceCode()] = $beforeSourceItem;
             }
         }
 
         $result = $callback(...$arguments);
 
         foreach ($sourceItems as $sourceItem) {
-            $sourceItemBefore = isset($sourceItemsBefore[$sourceItem->getSourceItemId()]) ?
-                $sourceItemsBefore[$sourceItem->getSourceItemId()] :
-                null;
+            $sourceItemBefore = $sourceItemsBefore[$sourceItem->getSourceCode()] ?? null;
             $affected = $this->msiAffectedProducts->getAffectedProductsBySourceAndSku(
                 $sourceItem->getSourceCode(),
                 $sourceItem->getSku()
@@ -111,8 +92,6 @@ class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
 
         return $result;
     }
-
-    //########################################
 
     /**
      * @param \Magento\InventoryApi\Api\Data\SourceItemInterface|null $beforeSourceItem
@@ -190,8 +169,6 @@ class Save extends \Ess\M2ePro\Plugin\AbstractPlugin
             \Ess\M2ePro\Model\Log\AbstractModel::TYPE_INFO
         );
     }
-
-    //########################################
 
     private function addListingProductInstructions($affectedProducts)
     {
