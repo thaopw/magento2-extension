@@ -102,6 +102,7 @@ class Responser extends \Ess\M2ePro\Model\Amazon\Connector\Product\Responser
         parent::processSuccess($params);
 
         $this->processSuccessReviseRegularPrice();
+        $this->processSuccessReviseRegularSalePrice();
         $this->processSuccessReviseBusinessPrice();
         $this->processSuccessReviseQty();
     }
@@ -144,6 +145,84 @@ class Responser extends \Ess\M2ePro\Model\Amazon\Connector\Product\Responser
                 )
             );
         }
+    }
+
+    protected function processSuccessReviseRegularSalePrice(): void
+    {
+        if (!$this->getConfigurator()->isRegularPriceAllowed()) {
+            return;
+        }
+
+        $currency = $this->localeCurrency->getCurrency(
+            $this->listingProduct->getMarketplace()->getChildObject()->getCurrency()
+        );
+
+        /** @var \Ess\M2ePro\Model\Amazon\Listing\Product $amazonListingProduct */
+        $amazonListingProduct = $this->listingProduct->getChildObject();
+
+        $salePriceFrom = (float)$amazonListingProduct->getOrigData('online_regular_sale_price');
+        $salePriceTo = (float)$amazonListingProduct->getOnlineRegularSalePrice();
+
+        if (
+            $salePriceFrom === $salePriceTo
+            && $salePriceFrom === 0.0
+        ) {
+            return;
+        }
+
+        $currentDate = \Ess\M2ePro\Helper\Date::createCurrentGmt();
+
+        $salePriceStartDateTo = null;
+        if (!empty($amazonListingProduct->getData('online_regular_sale_price_start_date'))) {
+            $salePriceStartDateTo = \Ess\M2ePro\Helper\Date::createDateGmt(
+                (string)$amazonListingProduct->getData('online_regular_sale_price_start_date')
+            );
+        }
+
+        $salePriceEndDateFrom = null;
+        if (!empty($amazonListingProduct->getOrigData('online_regular_sale_price_end_date'))) {
+            $salePriceEndDateFrom = \Ess\M2ePro\Helper\Date::createDateGmt(
+                (string)$amazonListingProduct->getOrigData('online_regular_sale_price_end_date')
+            );
+        }
+
+        $salePriceEndDateTo = null;
+        if (!empty($amazonListingProduct->getData('online_regular_sale_price_end_date'))) {
+            $salePriceEndDateTo = \Ess\M2ePro\Helper\Date::createDateGmt(
+                (string)$amazonListingProduct->getData('online_regular_sale_price_end_date')
+            );
+        }
+
+        $message = '';
+
+        if (
+            $salePriceFrom !== $salePriceTo
+            && $salePriceEndDateTo > $currentDate
+        ) {
+            $message = sprintf(
+                'Sale Price was set to %s from %s to %s.',
+                $currency->toCurrency($salePriceTo),
+                \Ess\M2ePro\Helper\Date::convertToLocalFormat(
+                    $salePriceStartDateTo,
+                    \IntlDateFormatter::LONG,
+                    \IntlDateFormatter::NONE
+                ),
+                \Ess\M2ePro\Helper\Date::convertToLocalFormat(
+                    $salePriceEndDateTo,
+                    \IntlDateFormatter::LONG,
+                    \IntlDateFormatter::NONE
+                ),
+            );
+        }
+
+        if (
+            $salePriceEndDateFrom !== $salePriceEndDateTo
+            && $salePriceEndDateTo < $currentDate
+        ) {
+            $message = 'Sale Price was removed.';
+        }
+
+        $this->logSuccessMessage($message);
     }
 
     protected function processSuccessReviseBusinessPrice()

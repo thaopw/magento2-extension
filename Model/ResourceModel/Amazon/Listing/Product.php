@@ -17,6 +17,8 @@ class Product extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Component\Chi
     public const COLUMN_ONLINE_QTY = 'online_qty';
     public const COLUMN_ONLINE_QTY_LAST_UPDATE_DATE = 'online_qty_last_update_date';
     public const COLUMN_ONLINE_MULTI_LOCATION_INVENTORY = 'online_multi_location_inventory';
+    public const COLUMN_AUTO_SEARCH_ASIN_ATTEMPT = 'auto_search_asin_attempt';
+    public const COLUMN_AUTO_SEARCH_ASIN_LAST_ATTEMPT_DATE = 'auto_search_asin_last_attempt_date';
 
     /** @var bool  */
     protected $_isPkAutoIncrement = false;

@@ -7,7 +7,6 @@ class Regular extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\DataBuilde
     public function getBuilderData()
     {
         $data = [];
-
         $amazonListingProduct = $this->getAmazonListingProduct();
         if (!isset($this->cachedData['regular_price'])) {
             $this->cachedData['regular_price'] = $amazonListingProduct->getRegularPrice();
@@ -18,7 +17,7 @@ class Regular extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\DataBuilde
         }
 
         if (!isset($this->cachedData['regular_sale_price_info'])) {
-            $salePriceInfo = $amazonListingProduct->getRegularSalePriceInfo();
+            $salePriceInfo = $this->retireRegularSalePriceInfo($amazonListingProduct);
             $this->cachedData['regular_sale_price_info'] = $salePriceInfo;
         }
 
@@ -52,5 +51,29 @@ class Regular extends \Ess\M2ePro\Model\Amazon\Listing\Product\Action\DataBuilde
         }
 
         return $data;
+    }
+
+    /**
+     * @return array|false
+     * @throws \Ess\M2ePro\Model\Exception
+     * @throws \Ess\M2ePro\Model\Exception\Logic
+     */
+    private function retireRegularSalePriceInfo(\Ess\M2ePro\Model\Amazon\Listing\Product $amazonListingProduct)
+    {
+        $salePriceInfo = $amazonListingProduct->getRegularSalePriceInfo();
+        if ($salePriceInfo !== false) {
+            return $salePriceInfo;
+        }
+
+        $onlineSalePrice = $amazonListingProduct->getOnlineRegularSalePrice();
+        if (empty($onlineSalePrice)) {
+            return false;
+        }
+
+        return [
+            'price' => $onlineSalePrice,
+            'start_date' => \Ess\M2ePro\Helper\Date::createCurrentGmt()->modify('-7 days')->format('Y-m-d H:i:s'),
+            'end_date' => \Ess\M2ePro\Helper\Date::createCurrentGmt()->modify('-6 days')->format('Y-m-d H:i:s'),
+        ];
     }
 }

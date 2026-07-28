@@ -232,6 +232,11 @@ class Repository extends \Ess\M2ePro\Model\AbstractModel
             'component' => \Ess\M2ePro\Helper\Component\Amazon::NICK,
             'group' => self::GROUP_AMAZON,
         ],
+        \Ess\M2ePro\Model\Cron\Task\Amazon\Listing\Product\AutoSearchAsin::NICK => [
+            'component' => \Ess\M2ePro\Helper\Component\Amazon::NICK,
+            'group' => self::GROUP_AMAZON,
+            'can-work-parallel' => true,
+        ],
         \Ess\M2ePro\Model\Cron\Task\Amazon\Order\Receive::NICK => [
             'component' => \Ess\M2ePro\Helper\Component\Amazon::NICK,
             'group' => self::GROUP_AMAZON,

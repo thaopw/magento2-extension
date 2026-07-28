@@ -10083,6 +10083,18 @@ class Installer
             null,
             ['nullable' => true]
         );
+        $amazonListingProductTable->addColumn(
+            \Ess\M2ePro\Model\ResourceModel\Amazon\Listing\Product::COLUMN_AUTO_SEARCH_ASIN_LAST_ATTEMPT_DATE,
+            Table::TYPE_DATETIME,
+            null,
+            ['nullable' => true]
+        );
+        $amazonListingProductTable->addColumn(
+            \Ess\M2ePro\Model\ResourceModel\Amazon\Listing\Product::COLUMN_AUTO_SEARCH_ASIN_ATTEMPT,
+            Table::TYPE_SMALLINT,
+            null,
+            ['nullable' => false, 'unsigned' => true, 'default' => 0]
+        );
         $amazonListingProductTable->addIndex('general_id', 'general_id');
         $amazonListingProductTable->addIndex('search_settings_status', 'search_settings_status');
         $amazonListingProductTable->addIndex('is_repricing', 'is_repricing');

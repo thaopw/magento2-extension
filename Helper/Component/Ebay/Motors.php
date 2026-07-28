@@ -71,7 +71,7 @@ class Motors
         $this->dbStructure = $dbStructure;
     }
 
-    public function getAttribute($type)
+    public function getAttribute($type): string
     {
         switch ($type) {
             case self::TYPE_EPID_MOTOR:

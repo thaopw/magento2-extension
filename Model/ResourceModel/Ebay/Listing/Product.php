@@ -38,27 +38,26 @@ class Product extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Component\Chi
         $this->_isPkAutoIncrement = false;
     }
 
-    public function getTemplateCategoryIds(array $listingProductIds, $columnName, $returnNull = false)
+    public function getTemplateCategoryIds(array $listingProductIds, string $columnName): array
     {
-        $select = $this->getConnection()
-                       ->select()
-                       ->from(['elp' => $this->getMainTable()])
-                       ->reset(\Magento\Framework\DB\Select::COLUMNS)
-                       ->columns([$columnName])
-                       ->where('listing_product_id IN (?)', $listingProductIds);
+        $select = $this
+            ->getConnection()
+            ->select()
+            ->from(['elp' => $this->getMainTable()])
+            ->reset(\Magento\Framework\DB\Select::COLUMNS)
+            ->columns([$columnName])
+            ->where('listing_product_id IN (?)', $listingProductIds);
 
-        !$returnNull && $select->where("{$columnName} IS NOT NULL");
-
+        $ids = [];
         foreach ($select->query()->fetchAll() as $row) {
-            $id = $row[$columnName] !== null ? (int)$row[$columnName] : null;
-            if (!$returnNull) {
+            if (empty($row[$columnName])) {
                 continue;
             }
 
-            $ids[$id] = $id;
+            $ids[] = (int)$row[$columnName];
         }
 
-        return array_values($ids);
+        return array_values(array_unique($ids));
     }
 
     public function assignTemplatesToProducts(

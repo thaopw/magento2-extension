@@ -1074,6 +1074,10 @@ class Order extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Ebay\Abstract
             return false;
         }
 
+        if ($this->isCanceled() || $this->isFullRefunded()) {
+            return false;
+        }
+
         // ebay restriction
         if (stripos($this->getPaymentMethod(), 'paisa') !== false) {
             return false;

@@ -168,10 +168,14 @@ class Unmanaged extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractContain
         M2ePro.customData.gridId = 'amazonListingUnmanagedGrid';
 
         window.AmazonListingOtherGridObj = new AmazonListingOtherGrid('amazonListingUnmanagedGrid');
+        window.AmazonListingOtherRemovingObj = new AmazonListingOtherRemoving(AmazonListingOtherGridObj, 'amazon');
         window.ListingOtherMappingObj = new ListingMapping(AmazonListingOtherGridObj, 'amazon');
 
         AmazonListingOtherGridObj.movingHandler.setProgressBar('listing_other_progress_bar');
         AmazonListingOtherGridObj.movingHandler.setGridWrapper('listing_other_content_container');
+
+        AmazonListingOtherGridObj.removingHandler.setProgressBar('listing_other_progress_bar');
+        AmazonListingOtherGridObj.removingHandler.setGridWrapper('listing_other_content_container');
 
         AmazonListingOtherGridObj.autoMappingHandler.setProgressBar('listing_other_progress_bar');
         AmazonListingOtherGridObj.autoMappingHandler.setGridWrapper('listing_other_content_container');

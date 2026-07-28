@@ -1432,4 +1432,22 @@ class Product extends \Ess\M2ePro\Model\ActiveRecord\Component\Child\Amazon\Abst
     }
 
     // ---------------------------------------
+
+    public function getAutoSearchAsinAttempt(): int
+    {
+        return (int)$this->getData(AmazonListingProductResource::COLUMN_AUTO_SEARCH_ASIN_ATTEMPT);
+    }
+
+    public function setAutoSearchAsinAttempt(int $attempt): void
+    {
+        $this->setData(AmazonListingProductResource::COLUMN_AUTO_SEARCH_ASIN_ATTEMPT, $attempt);
+    }
+
+    public function setAutoSearchAsinLastAttemptDate(\DateTime $date): void
+    {
+        $this->setData(
+            AmazonListingProductResource::COLUMN_AUTO_SEARCH_ASIN_LAST_ATTEMPT_DATE,
+            $date->format('Y-m-d H:i:s')
+        );
+    }
 }

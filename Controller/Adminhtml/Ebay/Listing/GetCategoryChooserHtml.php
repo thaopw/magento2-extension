@@ -26,25 +26,25 @@ class GetCategoryChooserHtml extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listi
         $accountId && $converter->setAccountId($accountId);
         $marketplaceId && $converter->setMarketplaceId($marketplaceId);
 
-        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_category_id', true);
+        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_category_id');
         $template = $this->tryToLoadCategoryTemplate($ids);
         if ($template && $template->getId()) {
             $converter->setCategoryDataFromTemplate($template->getData(), eBayCategory::TYPE_EBAY_MAIN);
         }
 
-        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_category_secondary_id', true);
+        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_category_secondary_id');
         $template = $this->tryToLoadCategoryTemplate($ids);
         if ($template && $template->getId()) {
             $converter->setCategoryDataFromTemplate($template->getData(), eBayCategory::TYPE_EBAY_SECONDARY);
         }
 
-        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_store_category_id', true);
+        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_store_category_id');
         $template = $this->tryToLoadStoreCategoryTemplate($ids);
         if ($template && $template->getId()) {
             $converter->setCategoryDataFromTemplate($template->getData(), eBayCategory::TYPE_STORE_MAIN);
         }
 
-        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_store_category_secondary_id', true);
+        $ids = $productResource->getTemplateCategoryIds($lPIds, 'template_store_category_secondary_id');
         $template = $this->tryToLoadStoreCategoryTemplate($ids);
         if ($template && $template->getId()) {
             $converter->setCategoryDataFromTemplate($template->getData(), eBayCategory::TYPE_STORE_SECONDARY);

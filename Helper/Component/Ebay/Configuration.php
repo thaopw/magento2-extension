@@ -131,23 +131,17 @@ class Configuration
         return $this->getUploadImagesMode() == self::UPLOAD_IMAGES_MODE_EPS;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getUkEpidsAttribute()
+    public function getUkEpidsAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'uk_epids_attribute'
         );
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getDeEpidsAttribute()
+    public function getDeEpidsAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'de_epids_attribute'
         );
@@ -156,42 +150,33 @@ class Configuration
     /**
      * @return mixed|null
      */
-    public function getAuEpidsAttribute()
+    public function getAuEpidsAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'au_epids_attribute'
         );
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getItEpidsAttribute()
+    public function getItEpidsAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'it_epids_attribute'
         );
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getMotorsEpidsAttribute()
+    public function getMotorsEpidsAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'motors_epids_attribute'
         );
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getKTypesAttribute()
+    public function getKTypesAttribute(): string
     {
-        return $this->config->getGroupValue(
+        return (string)$this->config->getGroupValue(
             self::CONFIG_GROUP,
             'ktypes_attribute'
         );

@@ -246,22 +246,23 @@ define([
         },
 
         showErrors: function () {
-            var actionIds = '';
+            var actionIds = [];
             for (var i = 0; i < this.sendPartsResponses.length; i++) {
-                if (actionIds != '') {
-                    actionIds += ',';
+                if (this.sendPartsResponses[i].action_id) {
+                    actionIds.push(this.sendPartsResponses[i].action_id);
                 }
-                actionIds += this.sendPartsResponses[i].action_id;
             }
 
-            var self = this;
-            new Ajax.Request(M2ePro.url.get('getErrorsSummary') + 'action_ids/' + actionIds + '/', {
-                method: 'get',
-                onSuccess: function (transportSummary) {
-                    $(self.errorsSummaryContainerId).innerHTML = transportSummary.responseText;
-                    $(self.errorsSummaryContainerId).show();
-                }
-            });
+            if (actionIds.length > 0) {
+                var self = this;
+                new Ajax.Request(M2ePro.url.get('getErrorsSummary') + 'action_ids/' + actionIds.join(',') + '/', {
+                    method: 'get',
+                    onSuccess: function (transportSummary) {
+                        $(self.errorsSummaryContainerId).innerHTML = transportSummary.responseText;
+                        $(self.errorsSummaryContainerId).show();
+                    }
+                });
+            }
         },
 
         // ---------------------------------------

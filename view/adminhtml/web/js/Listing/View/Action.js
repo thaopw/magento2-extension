@@ -87,22 +87,22 @@ define([
 
                     self.messageObj.addError(message);
 
-                    var actionIds = '';
+                    var actionIds = [];
                     for (var i = 0; i < self.sendPartsResponses.length; i++) {
-                        if (actionIds != '') {
-                            actionIds += ',';
+                        if (self.sendPartsResponses[i].action_id) {
+                            actionIds.push(self.sendPartsResponses[i].action_id);
                         }
-                        actionIds += self.sendPartsResponses[i].action_id;
                     }
 
-                    new Ajax.Request(M2ePro.url.get('getErrorsSummary') + 'action_ids/' + actionIds + '/', {
-                        method: 'get',
-                        onSuccess: function (transportSummary) {
-                            $(self.errorsSummaryContainerId).innerHTML = transportSummary.responseText;
-                            $(self.errorsSummaryContainerId).show();
-                        }
-                    });
-
+                    if (actionIds.length > 0) {
+                        new Ajax.Request(M2ePro.url.get('getErrorsSummary') + 'action_ids/' + actionIds.join(',') + '/', {
+                            method: 'get',
+                            onSuccess: function (transportSummary) {
+                                $(self.errorsSummaryContainerId).innerHTML = transportSummary.responseText;
+                                $(self.errorsSummaryContainerId).show();
+                            }
+                        });
+                    }
                 } else if (combineResult == 'warning') {
                     var message = M2ePro.translator.translate('task_completed_warning_message');
                     message = message.replace('%task_title%', self.progressBarObj.getTitle());

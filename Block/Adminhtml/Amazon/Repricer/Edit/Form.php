@@ -68,7 +68,7 @@ class Form extends AbstractForm
 
         $allAttributes = $this->magentoAttributeHelper->getAll();
         $attributesByInputTypes = [
-            'text_price' => $this->magentoAttributeHelper->filterByInputTypes($allAttributes, ['text', 'price']),
+            'text_price_select' => $this->magentoAttributeHelper->filterByInputTypes($allAttributes, ['text', 'price', 'select']),
             'boolean' => $this->magentoAttributeHelper->filterByInputTypes($allAttributes, ['boolean']),
         ];
 
@@ -125,7 +125,7 @@ HTML
                 $repricing->getRegularPriceMode() == $priceModeAttribute &&
                 !$this->magentoAttributeHelper->isExistInAttributesArray(
                     $repricing->getData('regular_price_attribute'),
-                    $attributesByInputTypes['text_price']
+                    $attributesByInputTypes['text_price_select']
                 ) && $repricing->getData('regular_price_attribute') != ''
             ) {
                 $attrs = [
@@ -142,7 +142,7 @@ HTML
                 ];
             }
 
-            foreach ($attributesByInputTypes['text_price'] as $attribute) {
+            foreach ($attributesByInputTypes['text_price_select'] as $attribute) {
                 $attrs = ['attribute_code' => $attribute['code']];
                 if (
                     $repricing->getRegularPriceMode() == $priceModeAttribute
@@ -280,7 +280,7 @@ HTML
                 $repricing->getMinPriceMode() == \Ess\M2ePro\Model\Amazon\Account\Repricing::PRICE_MODE_ATTRIBUTE
                 && !$this->magentoAttributeHelper->isExistInAttributesArray(
                     $repricing->getData('min_price_attribute'),
-                    $attributesByInputTypes['text_price']
+                    $attributesByInputTypes['text_price_select']
                 )
                 && $repricing->getData('min_price_attribute') != ''
             ) {
@@ -298,7 +298,7 @@ HTML
                 ];
             }
 
-            foreach ($attributesByInputTypes['text_price'] as $attribute) {
+            foreach ($attributesByInputTypes['text_price_select'] as $attribute) {
                 $attrs = ['attribute_code' => $attribute['code']];
                 if (
                     $repricing->getMinPriceMode() == $priceModeAttribute
@@ -453,7 +453,7 @@ More detailed information on how to work with this option can be found
             'label' => __('Select Attribute'),
             'attrs' => ['hidden' => 'hidden']
         ];
-        foreach ($attributesByInputTypes['text_price'] as $attribute) {
+        foreach ($attributesByInputTypes['text_price_select'] as $attribute) {
             $magentoTextPriceAttributes[] = [
                 'value' => $attribute['code'],
                 'label' => $attribute['label'],
@@ -531,7 +531,7 @@ More detailed information on how to work with this option can be found
                 $repricing->getMaxPriceMode() == \Ess\M2ePro\Model\Amazon\Account\Repricing::PRICE_MODE_ATTRIBUTE &&
                 !$this->magentoAttributeHelper->isExistInAttributesArray(
                     $repricing->getData('max_price_attribute'),
-                    $attributesByInputTypes['text_price']
+                    $attributesByInputTypes['text_price_select']
                 ) && $repricing->getData('max_price_attribute') != ''
             ) {
                 $attrs = [
@@ -548,7 +548,7 @@ More detailed information on how to work with this option can be found
                 ];
             }
 
-            foreach ($attributesByInputTypes['text_price'] as $attribute) {
+            foreach ($attributesByInputTypes['text_price_select'] as $attribute) {
                 $attrs = ['attribute_code' => $attribute['code']];
                 if (
                     $repricing->getMaxPriceMode() == $priceModeAttribute

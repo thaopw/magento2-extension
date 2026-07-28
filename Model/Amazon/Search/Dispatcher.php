@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\Amazon\Search;
 
@@ -12,12 +8,9 @@ use Ess\M2ePro\Model\Amazon\Search\Custom\Result as CustomResult;
 
 class Dispatcher
 {
-    /** @var \Ess\M2ePro\Model\Amazon\Search\Custom\Factory */
-    private $customSearchFactory;
-    /** @var \Ess\M2ePro\Model\Amazon\Search\SettingsFactory */
-    private $settingsSearchFactory;
-    /** @var \Ess\M2ePro\Helper\Module\Exception */
-    private $exceptionHelper;
+    private Custom\Factory $customSearchFactory;
+    private SettingsFactory $settingsSearchFactory;
+    private \Ess\M2ePro\Helper\Module\Exception $exceptionHelper;
 
     public function __construct(
         \Ess\M2ePro\Model\Amazon\Search\Custom\Factory $customSearchFactory,
