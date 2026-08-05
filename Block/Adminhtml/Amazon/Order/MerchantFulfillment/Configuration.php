@@ -660,7 +660,7 @@ HTML
             [
                 'data' => [
                     'name' => 'ship_from_address_region_state',
-                    'value' => $formData['ship_from_address_region_state'],
+                    'value' => $formData['ship_from_address_region_state'] ?? '',
                 ],
             ]
         );
@@ -675,11 +675,11 @@ HTML
                     'name' => 'ship_from_address_region_state',
                     'values' => [
                         [
-                            'label' => $formData['ship_from_address_region_state'],
-                            'value' => $formData['ship_from_address_region_state'],
+                            'label' => $formData['ship_from_address_region_state'] ?? '',
+                            'value' => $formData['ship_from_address_region_state'] ?? '',
                         ],
                     ],
-                    'value' => $formData['ship_from_address_region_state'],
+                    'value' => $formData['ship_from_address_region_state'] ?? '',
                     'style' => 'width: 70%; display: none;',
                 ],
             ]

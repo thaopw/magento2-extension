@@ -129,8 +129,21 @@
                 type="Ess\M2ePro\Model\Ebay\Api\OrderSearchResult" />
     <preference for="Ess\M2ePro\Api\Ebay\OrderSearchCriteriaInterface"
                 type="Ess\M2ePro\Model\Ebay\Api\OrderSearchCriteria" />
+
     <preference for="Ess\M2ePro\Api\Amazon\OrderManagementInterface"
                 type="Ess\M2ePro\Model\Amazon\Api\OrderManagement" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillmentInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillment\GetShipmentServices\RequestInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment\GetShipmentServices\Request" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillment\GetShipmentServices\ResponseInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment\GetShipmentServices\Response" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillment\GetShipmentServices\Data\AvailableItemInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment\GetShipmentServices\Data\AvailableItem" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillment\CreateShipmentOffer\RequestInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment\CreateShipmentOffer\Request" />
+    <preference for="Ess\M2ePro\Api\Amazon\MerchantFulfillment\CreateShipmentOffer\ResponseInterface"
+                type="Ess\M2ePro\Model\Amazon\Api\MerchantFulfillment\CreateShipmentOffer\Response" />
     <!--  DTO  -->
     <preference for="Ess\M2ePro\Api\Ebay\Data\OrderInterface"
                 type="Ess\M2ePro\Model\Ebay\Api\Data\Order" />
