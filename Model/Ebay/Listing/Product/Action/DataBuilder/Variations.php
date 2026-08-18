@@ -108,7 +108,12 @@ class Variations extends AbstractModel
             }
 
             // @codingStandardsIgnoreLine
-            $item = array_merge($item, $this->getVariationPriceData($variation));
+            try {
+                $priceData = $this->getVariationPriceData($variation);
+            } catch (\Ess\M2ePro\Model\Exception\ProductNotExist $e) {
+                $priceData = ['price' => $ebayVariation->getOnlinePrice()];
+            }
+            $item = array_merge($item, $priceData);
 
             if (
                 ($qtyMode == \Ess\M2ePro\Model\Template\SellingFormat::QTY_MODE_PRODUCT_FIXED ||

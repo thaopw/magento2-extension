@@ -13,8 +13,26 @@ class General extends AbstractModel
     public const INSTRUCTION_TYPE_DISABLED_MANAGE = 'disabled_manage_on_repricer';
     public const INSTRUCTION_INITIATOR = 'repricing_general_synchronization';
 
-    /** @var array  */
-    private $parentProductsIds = [];
+    private array $parentProductsIds = [];
+    private \Ess\M2ePro\Model\ResourceModel\Listing\Product\Instruction $instructionResource;
+
+    public function __construct(
+        \Ess\M2ePro\Model\ResourceModel\Listing\Product\Instruction $instructionResource,
+        \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Magento\Framework\App\ResourceConnection $resourceConnection,
+        \Ess\M2ePro\Helper\Factory $helperFactory,
+        \Ess\M2ePro\Model\Factory $modelFactory
+    ) {
+        parent::__construct(
+            $activeRecordFactory,
+            $amazonFactory,
+            $resourceConnection,
+            $helperFactory,
+            $modelFactory
+        );
+        $this->instructionResource = $instructionResource;
+    }
 
     //########################################
 
@@ -171,12 +189,21 @@ class General extends AbstractModel
         }
 
         $insertData = [];
+        $instructions = [];
 
         foreach ($listingsProductsData as $listingProductData) {
             $listingProductId = (int)$listingProductData['listing_product_id'];
             $parentListingProductId = (int)$listingProductData['variation_parent_id'];
 
             $offerData = $newOffersData[strtolower($listingProductData['sku'])];
+
+            $instructions[] = [
+                'listing_product_id' => $listingProductId,
+                'component' => \Ess\M2ePro\Helper\Component\Amazon::NICK,
+                'type' => \Ess\M2ePro\Model\Amazon\Magento\Product\ChangeProcessor::INSTRUCTION_TYPE_REPRICING_DATA_CHANGED,
+                'initiator' => self::INSTRUCTION_INITIATOR,
+                'priority' => 100,
+            ];
 
             $insertData[$listingProductId] = [
                 'listing_product_id' => $listingProductId,
@@ -225,6 +252,8 @@ class General extends AbstractModel
                 ['listing_product_id IN (?)' => array_keys($insertDataPack)]
             );
         }
+
+        $this->instructionResource->add($instructions);
     }
 
     private function addListingOthersRepricing(array $newOffersData)
