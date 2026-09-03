@@ -4,6 +4,10 @@ namespace Ess\M2ePro\Block\Adminhtml\Listing\Product;
 
 use Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm;
 
+/**
+ * @method string getGridJsObjectName()
+ * @method self setGridJsObjectName(string $name)
+ */
 class Rule extends AbstractForm
 {
     /** @var bool */

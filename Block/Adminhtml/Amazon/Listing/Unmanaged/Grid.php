@@ -1,28 +1,25 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Block\Adminhtml\Amazon\Listing\Unmanaged;
 
-class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractGrid
+class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Product\Grid
 {
     private const ACTUAL_QTY_EXPRESSION =
         'IF(second_table.is_afn_channel = 1, second_table.online_afn_qty, second_table.online_qty)';
 
-    /** @var \Magento\Framework\Locale\CurrencyInterface */
-    private $localeCurrency;
-    /** @var \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory */
-    private $amazonFactory;
-    /** @var \Ess\M2ePro\Helper\Data */
-    private $dataHelper;
-    /** @var \Ess\M2ePro\Helper\Component\Amazon */
-    private $amazonHelper;
+    protected $showAdvancedFilterProductsOption = false;
+    protected $useAdvancedFilter = true;
+
+    private \Magento\Framework\Locale\CurrencyInterface $localeCurrency;
+    private \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory;
+    protected \Ess\M2ePro\Helper\Data $dataHelper;
+    private \Ess\M2ePro\Helper\Component\Amazon $amazonHelper;
+    private \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager;
 
     public function __construct(
+        \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager,
         \Magento\Framework\Locale\CurrencyInterface $localeCurrency,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Block\Adminhtml\Magento\Context\Template $context,
@@ -31,12 +28,12 @@ class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractGrid
         \Ess\M2ePro\Helper\Component\Amazon $amazonHelper,
         array $data = []
     ) {
+        $this->uiRuleManager = $uiRuleManager;
         $this->localeCurrency = $localeCurrency;
         $this->amazonFactory = $amazonFactory;
         $this->dataHelper = $dataHelper;
         $this->amazonHelper = $amazonHelper;
-
-        parent::__construct($context, $backendHelper, $data);
+        parent::__construct($context, $backendHelper, $dataHelper, $data);
     }
 
     public function _construct()
@@ -599,5 +596,21 @@ JS
     public function getRowUrl($item)
     {
         return false;
+    }
+
+    /**
+     * @param \Ess\M2ePro\Model\ResourceModel\Listing\Other\Collection $collection
+     *
+     * @return void
+     * @throws \Ess\M2ePro\Model\Exception\Logic
+     * @throws \Ess\M2ePro\Model\Exception
+     */
+    public function setCollection($collection)
+    {
+        if ($this->useAdvancedFilter) {
+            $this->uiRuleManager->appendAdvancedFilterToCollection($collection);
+        }
+
+        $this->_collection = $collection;
     }
 }

@@ -1,25 +1,32 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction;
 
-/**
- * Class \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction\Reset
- */
 class Reset extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
 {
+    private \Ess\M2ePro\Model\Ebay\Listing\Repository $ebayListingRepository;
+    private \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Repository $autoAdvancedFilterRepository;
+    private \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Delete $autoAdvancedFilterDelete;
+
+    public function __construct(
+        \Ess\M2ePro\Model\Ebay\Listing\Repository $ebayListingRepository,
+        \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Delete $autoAdvancedFilterDelete,
+        \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Repository $autoAdvancedFilterRepository,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory $ebayFactory,
+        \Ess\M2ePro\Controller\Adminhtml\Context $context
+    ) {
+        parent::__construct($ebayFactory, $context);
+        $this->ebayListingRepository = $ebayListingRepository;
+        $this->autoAdvancedFilterRepository = $autoAdvancedFilterRepository;
+        $this->autoAdvancedFilterDelete = $autoAdvancedFilterDelete;
+    }
+
     public function execute()
     {
-        /** @var \Ess\M2ePro\Model\Listing $listing */
-        $listing = $this->ebayFactory->getCachedObjectLoaded(
-            'Listing',
-            $this->getRequest()->getParam('listing_id')
-        );
+        $listing = $this->ebayListingRepository
+            ->get((int)$this->getRequest()->getParam('listing_id'));
 
         $data = [
             'auto_mode' => \Ess\M2ePro\Model\Listing::AUTO_MODE_NONE,
@@ -56,6 +63,11 @@ class Reset extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
         foreach ($listing->getAutoCategoriesGroups(true) as $autoCategoryGroup) {
             /**@var \Ess\M2ePro\Model\Listing\Auto\Category\Group $autoCategoryGroup */
             $autoCategoryGroup->delete();
+        }
+
+        $advancedFilters = $this->autoAdvancedFilterRepository->getByListingId((int)$listing->getId());
+        foreach ($advancedFilters as $filter) {
+            $this->autoAdvancedFilterDelete->execute($filter);
         }
     }
 }

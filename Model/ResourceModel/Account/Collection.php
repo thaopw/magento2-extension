@@ -1,13 +1,13 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\ResourceModel\Account;
 
+/**
+ * @method \Ess\M2ePro\Model\Account getFirstItem()
+ * @method \Ess\M2ePro\Model\Account[] getItems()
+ */
 class Collection extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Collection\Component\Parent\AbstractModel
 {
     public function _construct()

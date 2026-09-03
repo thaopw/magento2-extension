@@ -6,28 +6,32 @@ namespace Ess\M2ePro\Model\Listing\Product\AdvancedFilter;
 
 class Manager
 {
-    /** @var \Ess\M2ePro\Model\Magento\Product\RuleFactory */
-    private $magentoRuleFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Magento\Product\RuleFactory */
-    private $ebayRuleFactory;
-    /** @var \Ess\M2ePro\Model\Amazon\Magento\Product\RuleFactory */
-    private $amazonRuleFactory;
-    /** @var \Ess\M2ePro\Model\Walmart\Magento\Product\RuleFactory */
-    private $walmartRuleFactory;
-    /** @var \Ess\M2ePro\Model\Listing\Product\AdvancedFilter\Repository */
-    private $repository;
+    private \Ess\M2ePro\Model\Magento\Product\RuleFactory $magentoRuleFactory;
+    private \Ess\M2ePro\Model\Ebay\Magento\Product\RuleFactory $ebayRuleFactory;
+    private \Ess\M2ePro\Model\Amazon\Magento\Product\RuleFactory $amazonRuleFactory;
+    private \Ess\M2ePro\Model\Walmart\Magento\Product\RuleFactory $walmartRuleFactory;
+    private \Ess\M2ePro\Model\Amazon\Magento\Product\UnmanagedRuleFactory $amazonUnmanagedRuleFactory;
+    private \Ess\M2ePro\Model\Ebay\Magento\Product\UnmanagedRuleFactory $ebayUnmanagedRuleFactory;
+    private \Ess\M2ePro\Model\Walmart\Magento\Product\UnmanagedRuleFactory $walmartUnmanagedRuleFactory;
+    private Repository $repository;
 
     public function __construct(
         \Ess\M2ePro\Model\Magento\Product\RuleFactory $magentoRuleFactory,
         \Ess\M2ePro\Model\Ebay\Magento\Product\RuleFactory $ebayRuleFactory,
         \Ess\M2ePro\Model\Amazon\Magento\Product\RuleFactory $amazonRuleFactory,
         \Ess\M2ePro\Model\Walmart\Magento\Product\RuleFactory $walmartRuleFactory,
+        \Ess\M2ePro\Model\Amazon\Magento\Product\UnmanagedRuleFactory $amazonUnmanagedRuleFactory,
+        \Ess\M2ePro\Model\Ebay\Magento\Product\UnmanagedRuleFactory $ebayUnmanagedRuleFactory,
+        \Ess\M2ePro\Model\Walmart\Magento\Product\UnmanagedRuleFactory $walmartUnmanagedRuleFactory,
         \Ess\M2ePro\Model\Listing\Product\AdvancedFilter\Repository $repository
     ) {
         $this->magentoRuleFactory = $magentoRuleFactory;
         $this->ebayRuleFactory = $ebayRuleFactory;
         $this->amazonRuleFactory = $amazonRuleFactory;
         $this->walmartRuleFactory = $walmartRuleFactory;
+        $this->amazonUnmanagedRuleFactory = $amazonUnmanagedRuleFactory;
+        $this->ebayUnmanagedRuleFactory = $ebayUnmanagedRuleFactory;
+        $this->walmartUnmanagedRuleFactory = $walmartUnmanagedRuleFactory;
         $this->repository = $repository;
     }
 
@@ -114,6 +118,18 @@ class Manager
 
         if ($nick === \Ess\M2ePro\Model\Walmart\Magento\Product\Rule::NICK) {
             return $this->walmartRuleFactory->create(\Ess\M2ePro\Model\Walmart\Magento\Product\Rule::NICK, $storeId);
+        }
+
+        if ($nick === \Ess\M2ePro\Model\Amazon\Magento\Product\UnmanagedRule::NICK) {
+            return $this->amazonUnmanagedRuleFactory->create(\Ess\M2ePro\Model\Amazon\Magento\Product\UnmanagedRule::NICK, $storeId);
+        }
+
+        if ($nick === \Ess\M2ePro\Model\Ebay\Magento\Product\UnmanagedRule::NICK) {
+            return $this->ebayUnmanagedRuleFactory->create(\Ess\M2ePro\Model\Ebay\Magento\Product\UnmanagedRule::NICK, $storeId);
+        }
+
+        if ($nick === \Ess\M2ePro\Model\Walmart\Magento\Product\UnmanagedRule::NICK) {
+            return $this->walmartUnmanagedRuleFactory->create(\Ess\M2ePro\Model\Walmart\Magento\Product\UnmanagedRule::NICK, $storeId);
         }
 
         throw new \LogicException('Unresolved model nick');

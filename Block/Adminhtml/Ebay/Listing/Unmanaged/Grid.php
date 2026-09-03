@@ -1,48 +1,40 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Block\Adminhtml\Ebay\Listing\Unmanaged;
 
 use Ess\M2ePro\Block\Adminhtml\Ebay\Grid\Column\Renderer\Qty as OnlineQty;
 
-class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractGrid
+class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Product\Grid
 {
-    /** @var \Magento\Framework\Locale\CurrencyInterface */
-    protected $localeCurrency;
+    protected $showAdvancedFilterProductsOption = false;
+    protected $useAdvancedFilter = true;
 
-    /** @var \Magento\Framework\App\ResourceConnection */
-    protected $resourceConnection;
-
-    /** @var \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory */
-    protected $ebayFactory;
-
-    /** @var \Ess\M2ePro\Helper\Data */
-    private $dataHelper;
-
-    /** @var \Ess\M2ePro\Helper\Component\Ebay */
-    private $ebayHelper;
+    protected \Magento\Framework\Locale\CurrencyInterface $localeCurrency;
+    protected \Magento\Framework\App\ResourceConnection $resourceConnection;
+    protected \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory $ebayFactory;
+    protected \Ess\M2ePro\Helper\Data $dataHelper;
+    private \Ess\M2ePro\Helper\Component\Ebay $ebayHelper;
+    private \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager;
 
     public function __construct(
+        \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager,
         \Magento\Framework\Locale\CurrencyInterface $localeCurrency,
         \Magento\Framework\App\ResourceConnection $resourceConnection,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory $ebayFactory,
         \Ess\M2ePro\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Backend\Helper\Data $backendHelper,
         \Ess\M2ePro\Helper\Data $dataHelper,
-        \Ess\M2ePro\Helper\Component\Ebay $ebayHelper,
-        array $data = []
+        \Ess\M2ePro\Helper\Component\Ebay $ebayHelper
     ) {
+        $this->uiRuleManager = $uiRuleManager;
         $this->localeCurrency = $localeCurrency;
         $this->resourceConnection = $resourceConnection;
         $this->ebayFactory = $ebayFactory;
         $this->dataHelper = $dataHelper;
         $this->ebayHelper = $ebayHelper;
-        parent::__construct($context, $backendHelper, $data);
+        parent::__construct($context, $backendHelper, $dataHelper);
     }
 
     public function _construct()
@@ -564,5 +556,21 @@ JS
     public function getRowUrl($item)
     {
         return false;
+    }
+
+    /**
+     * @param \Ess\M2ePro\Model\ResourceModel\Listing\Other\Collection $collection
+     *
+     * @return void
+     * @throws \Ess\M2ePro\Model\Exception\Logic
+     * @throws \Ess\M2ePro\Model\Exception
+     */
+    public function setCollection($collection)
+    {
+        if ($this->useAdvancedFilter) {
+            $this->uiRuleManager->appendAdvancedFilterToCollection($collection);
+        }
+
+        $this->_collection = $collection;
     }
 }

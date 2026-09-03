@@ -467,7 +467,10 @@ class Config extends AbstractConfig
             ],
             'y26_m07' => [
                 'AddAmazonAutoSearchAsinCron',
-            ]
+            ],
+            'y26_m09' => [
+                'AutoActionAdvancedFilterMode',
+            ],
         ];
     }
 
@@ -594,6 +597,7 @@ class Config extends AbstractConfig
             \Ess\M2ePro\Setup\Update\y26_m06\AddFbmShipPlusSignToAmazonOrder::class,
             \Ess\M2ePro\Setup\Update\y26_m06\AddEbayAutoActionAdvancedFilterMode::class,
             \Ess\M2ePro\Setup\Update\y26_m07\AddAmazonAutoSearchAsinCron::class,
+            \Ess\M2ePro\Setup\Update\y26_m09\AutoActionAdvancedFilterMode::class
         ];
     }
 

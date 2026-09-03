@@ -18,6 +18,9 @@ use Ess\M2ePro\Block\Adminhtml\Magento\Form\Element\Select;
 use Ess\M2ePro\Block\Adminhtml\Magento\Form\Element\Separator;
 use Ess\M2ePro\Block\Adminhtml\Magento\Form\Element\StoreSwitcher;
 
+/**
+ * @method setId(string $id)
+ */
 abstract class AbstractForm extends Generic
 {
     use Traits\BlockTrait;

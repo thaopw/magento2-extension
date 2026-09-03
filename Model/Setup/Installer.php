@@ -344,30 +344,6 @@ class Installer
                 ['unsigned' => true, 'nullable' => false, 'default' => 0]
             )
             ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_MODE,
-                Table::TYPE_SMALLINT,
-                null,
-                ['unsigned' => true, 'nullable' => false, 'default' => 0]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_ADD_NOT_VISIBLE,
-                Table::TYPE_SMALLINT,
-                null,
-                ['unsigned' => true, 'nullable' => false, 'default' => 1]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_DELETING_MODE,
-                Table::TYPE_SMALLINT,
-                null,
-                ['unsigned' => true, 'nullable' => false, 'default' => 0]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_CONDITION,
-                Table::TYPE_TEXT,
-                self::LONG_COLUMN_SIZE,
-                ['nullable' => true]
-            )
-            ->addColumn(
                 'update_date',
                 Table::TYPE_DATETIME,
                 null,
@@ -3205,6 +3181,94 @@ class Installer
 
         $this->getConnection()->createTable($listingProductAdvancedFilterTable);
         #endregion
+
+        $listingAutoAdvancedTableName = $this
+            ->getFullTableName(TablesHelper::TABLE_LISTING_AUTO_ADVANCED_FILTER);
+
+        $listingAutoAdvancedTable = $this
+            ->getConnection()
+            ->newTable($listingAutoAdvancedTableName)
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'primary' => true, 'nullable' => false, 'auto_increment' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_LISTING_ID,
+                TABLE::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_TITLE,
+                TABLE::TYPE_TEXT,
+                255,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_ADDING_MODE,
+                TABLE::TYPE_SMALLINT,
+                null,
+                [
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'default' => \Ess\M2ePro\Model\Listing::ADDING_MODE_NONE,
+                ]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_ADDING_ADD_NOT_VISIBLE,
+                TABLE::TYPE_SMALLINT,
+                null,
+                [
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'default' => \Ess\M2ePro\Model\Listing::AUTO_ADDING_ADD_NOT_VISIBLE_YES,
+                ]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_DELETING_MODE,
+                TABLE::TYPE_SMALLINT,
+                null,
+                [
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'default' => \Ess\M2ePro\Model\Listing::DELETING_MODE_NONE,
+                ]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_CONDITION,
+                TABLE::TYPE_TEXT,
+                \Ess\M2ePro\Model\Setup\Installer::LONG_COLUMN_SIZE,
+                ['nullable' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_COMPONENT_MODE,
+                TABLE::TYPE_TEXT,
+                10,
+                ['nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_UPDATE_DATE,
+                TABLE::TYPE_DATETIME,
+                null,
+                ['nullable' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_CREATE_DATE,
+                TABLE::TYPE_DATETIME,
+                null,
+                ['nullable' => true]
+            )
+            ->addIndex(
+                'listing_id',
+                \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_LISTING_ID
+            )
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci');
+
+        $this->getConnection()->createTable($listingAutoAdvancedTable);
     }
 
     /**
@@ -4300,30 +4364,6 @@ class Installer
                 ['unsigned' => true, 'default' => null]
             )
             ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID,
-                Table::TYPE_INTEGER,
-                null,
-                ['unsigned' => true, 'default' => null]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID,
-                Table::TYPE_INTEGER,
-                null,
-                ['unsigned' => true, 'default' => null]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID,
-                Table::TYPE_INTEGER,
-                null,
-                ['unsigned' => true, 'default' => null]
-            )
-            ->addColumn(
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID,
-                Table::TYPE_INTEGER,
-                null,
-                ['unsigned' => true, 'default' => null]
-            )
-            ->addColumn(
                 \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_ADD_PRODUCT_MODE,
                 Table::TYPE_TEXT,
                 20,
@@ -4408,22 +4448,6 @@ class Installer
             ->addIndex(
                 'auto_website_adding_template_store_category_secondary_id',
                 'auto_website_adding_template_store_category_secondary_id'
-            )
-            ->addIndex(
-                'auto_advanced_filter_adding_template_category_id',
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID
-            )
-            ->addIndex(
-                'auto_advanced_filter_adding_template_category_secondary_id',
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID
-            )
-            ->addIndex(
-                'auto_advanced_filter_adding_template_store_category_id',
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID
-            )
-            ->addIndex(
-                'auto_advanced_filter_adding_template_store_category_secondary_id',
-                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID
             )
             ->addIndex('template_description_id', 'template_description_id')
             ->addIndex('template_return_policy_id', 'template_return_policy_id')
@@ -8047,6 +8071,52 @@ class Installer
 
         $this->getConnection()->createTable($ebayBundleOptionsMappingTable);
         //endregion
+
+        $ebayListingAutoAdvancedFilterTableName = $this
+            ->getFullTableName(TablesHelper::TABLE_EBAY_LISTING_AUTO_ADVANCED_FILTER);
+
+        $ebayListingAutoAdvancedFilterTable = $this
+            ->getConnection()
+            ->newTable($ebayListingAutoAdvancedFilterTableName)
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_LISTING_AUTO_ADVANCED_FILTER_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_ADDING_TEMPLATE_CATEGORY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_ADDING_TEMPLATE_STORE_CATEGORY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true]
+            )
+            ->addColumn(
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID,
+                Table::TYPE_INTEGER,
+                null,
+                ['unsigned' => true]
+            )
+            ->addIndex(
+                'listing_auto_advanced_filter_id',
+                \Ess\M2ePro\Model\ResourceModel\Ebay\Listing\Auto\Advanced\Filter::COLUMN_LISTING_AUTO_ADVANCED_FILTER_ID
+            )
+            ->setOption('type', 'INNODB')
+            ->setOption('charset', 'utf8')
+            ->setOption('collate', 'utf8_general_ci');
+
+        $this->getConnection()->createTable($ebayListingAutoAdvancedFilterTable);
     }
 
     /**

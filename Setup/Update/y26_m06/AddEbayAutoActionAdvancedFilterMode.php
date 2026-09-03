@@ -19,7 +19,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         $modifier = $this->getTableModifier(Tables::TABLE_LISTING);
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_MODE,
+            'auto_advanced_filter_adding_mode',
             'SMALLINT UNSIGNED NOT NULL',
             0,
             null,
@@ -28,7 +28,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_ADD_NOT_VISIBLE,
+            'auto_advanced_filter_adding_add_not_visible',
             'SMALLINT UNSIGNED NOT NULL',
             1,
             null,
@@ -37,7 +37,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_DELETING_MODE,
+            'auto_advanced_filter_deleting_mode',
             'SMALLINT UNSIGNED NOT NULL',
             0,
             null,
@@ -46,7 +46,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_CONDITION,
+            'auto_advanced_filter_condition',
             'LONGTEXT NULL',
             null,
             null,
@@ -62,7 +62,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         $modifier = $this->getTableModifier(Tables::TABLE_EBAY_LISTING);
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_ID,
+            'auto_advanced_filter_adding_template_category_id',
             'INT UNSIGNED NULL',
             null,
             null,
@@ -71,7 +71,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_CATEGORY_SECONDARY_ID,
+            'auto_advanced_filter_adding_template_category_secondary_id',
             'INT UNSIGNED NULL',
             null,
             null,
@@ -80,7 +80,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_ID,
+            'auto_advanced_filter_adding_template_store_category_id',
             'INT UNSIGNED NULL',
             null,
             null,
@@ -89,7 +89,7 @@ class AddEbayAutoActionAdvancedFilterMode extends \Ess\M2ePro\Model\Setup\Upgrad
         );
 
         $modifier->addColumn(
-            \Ess\M2ePro\Model\ResourceModel\Ebay\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_TEMPLATE_STORE_CATEGORY_SECONDARY_ID,
+            'auto_advanced_filter_adding_template_store_category_secondary_id',
             'INT UNSIGNED NULL',
             null,
             null,

@@ -8,7 +8,7 @@
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Unmanaged;
 
-class Reset extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Unmanaged\Index
+class Reset extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
 {
     //########################################
 

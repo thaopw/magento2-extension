@@ -14,6 +14,22 @@ class Repository
         $this->accountCollectionFactory = $accountCollectionFactory;
     }
 
+    public function find(int $id): ?\Ess\M2ePro\Model\Account
+    {
+        $collection = $this->accountCollectionFactory->createWithEbayChildMode();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Account::COLUMN_ID,
+            ['eq' => $id]
+        );
+
+        $account = $collection->getFirstItem();
+        if ($account->isObjectNew()) {
+            return null;
+        }
+
+        return $account;
+    }
+
     public function getByAccountId(int $accountId): \Ess\M2ePro\Model\Ebay\Account
     {
         $accountsCollection = $this->accountCollectionFactory->createWithEbayChildMode();

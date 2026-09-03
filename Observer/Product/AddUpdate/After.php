@@ -514,8 +514,19 @@ class After extends AbstractAddUpdate
 
     private function performAdvancedFilterAutoActions(): void
     {
-        $advancedFilterAutoAction = $this->listingAutoActionsModeFactory->createAdvancedFilterMode();
-        $advancedFilterAutoAction->synchByProductId((int)$this->getProduct()->getId());
+        foreach ($this->getProxy()->getAutoAdvancedFilterAttributes() as $beforeAttributeValue) {
+            $afterAttributeValue = new DTO\AttributeValue(
+                $beforeAttributeValue->getAttributeCode(),
+                $this->getMagentoProduct()->getAttributeValue($beforeAttributeValue->getAttributeCode())
+            );
+
+            if ($beforeAttributeValue->isEqual($afterAttributeValue)) {
+                continue;
+            }
+
+            $advancedFilterAutoAction = $this->listingAutoActionsModeFactory->createAdvancedFilterMode();
+            $advancedFilterAutoAction->synchByProductId((int)$this->getProduct()->getId());
+        }
     }
 
     //########################################

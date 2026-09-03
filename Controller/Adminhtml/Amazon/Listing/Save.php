@@ -1,36 +1,52 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Listing;
 
 use Ess\M2ePro\Block\Adminhtml\Amazon\Listing\Create\Selling\Form as CreateSellingForm;
 
 class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
 {
-    /** @var \Ess\M2ePro\Helper\Data */
-    protected $helperData;
-    private \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesService;
+    private \Ess\M2ePro\Model\Amazon\Listing\Repository $listingRepository;
+    private \Ess\M2ePro\Model\Amazon\Listing\SnapshotBuilderFactory $snapshotBuilderFactory;
+    private \Ess\M2ePro\Model\Amazon\Listing\DiffFactory $diffFactory;
+    private \Ess\M2ePro\Model\Amazon\Listing\AffectedListingsProductsFactory $affectedListingsProductsFactory;
+    private \Ess\M2ePro\Model\Amazon\Listing\ChangeProcessorFactory $changeProcessorFactory;
     private \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository;
     private \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $shippingTemplateSnapshotBuilderFactory;
     private \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $shippingTemplateDiffFactory;
     private \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $shippingTemplateChangeProcessorFactory;
+    private \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesService;
+    private \Ess\M2ePro\Helper\Url $urlHelper;
 
     public function __construct(
+        \Ess\M2ePro\Model\Amazon\Listing\Repository $listingRepository,
+        \Ess\M2ePro\Model\Amazon\Listing\SnapshotBuilderFactory $snapshotBuilderFactory,
+        \Ess\M2ePro\Model\Amazon\Listing\DiffFactory $diffFactory,
+        \Ess\M2ePro\Model\Amazon\Listing\AffectedListingsProductsFactory $affectedListingsProductsFactory,
+        \Ess\M2ePro\Model\Amazon\Listing\ChangeProcessorFactory $changeProcessorFactory,
         \Ess\M2ePro\Model\Amazon\Template\Shipping\Repository $shippingTemplateRepository,
         \Ess\M2ePro\Model\Amazon\Template\Shipping\SnapshotBuilderFactory $shippingTemplateSnapshotBuilderFactory,
         \Ess\M2ePro\Model\Amazon\Template\Shipping\DiffFactory $shippingTemplateDiffFactory,
         \Ess\M2ePro\Model\Amazon\Template\Shipping\ChangeProcessorFactory $shippingTemplateChangeProcessorFactory,
         \Ess\M2ePro\Model\Amazon\Listing\OfferImagesFormService $offerImagesService,
-        \Ess\M2ePro\Helper\Data $helperData,
+        \Ess\M2ePro\Helper\Url $urlHelper,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
         \Ess\M2ePro\Controller\Adminhtml\Context $context
     ) {
-        $this->helperData = $helperData;
-        $this->offerImagesService = $offerImagesService;
         parent::__construct($amazonFactory, $context);
+        $this->listingRepository = $listingRepository;
+        $this->snapshotBuilderFactory = $snapshotBuilderFactory;
+        $this->diffFactory = $diffFactory;
+        $this->affectedListingsProductsFactory = $affectedListingsProductsFactory;
+        $this->changeProcessorFactory = $changeProcessorFactory;
         $this->shippingTemplateRepository = $shippingTemplateRepository;
         $this->shippingTemplateSnapshotBuilderFactory = $shippingTemplateSnapshotBuilderFactory;
         $this->shippingTemplateDiffFactory = $shippingTemplateDiffFactory;
         $this->shippingTemplateChangeProcessorFactory = $shippingTemplateChangeProcessorFactory;
+        $this->offerImagesService = $offerImagesService;
+        $this->urlHelper = $urlHelper;
     }
 
     // ----------------------------------------
@@ -49,16 +65,16 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
         }
 
         $id = $this->getRequest()->getParam('id');
-        $listing = $this->amazonFactory->getObjectLoaded('Listing', $id, null, false);
+        $listing = $this->listingRepository->find((int)$id);
 
         if ($listing === null && $id) {
-            $this->getMessageManager()->addError($this->__('Listing does not exist.'));
+            $this->getMessageManager()
+                 ->addError(__('Listing does not exist.'));
 
             return $this->_redirect('*/amazon_listing/index');
         }
 
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\SnapshotBuilder $snapshotBuilder */
-        $snapshotBuilder = $this->modelFactory->getObject('Amazon_Listing_SnapshotBuilder');
+        $snapshotBuilder = $this->snapshotBuilderFactory->create();
         $snapshotBuilder->setModel($listing);
 
         $oldData = $snapshotBuilder->getSnapshot();
@@ -167,19 +183,16 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
         $listing->getChildObject()->addData($templateData);
         $listing->save();
 
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\SnapshotBuilder $snapshotBuilder */
-        $snapshotBuilder = $this->modelFactory->getObject('Amazon_Listing_SnapshotBuilder');
+        $snapshotBuilder = $this->snapshotBuilderFactory->create();
         $snapshotBuilder->setModel($listing);
 
         $newData = $snapshotBuilder->getSnapshot();
 
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\Diff $diff */
-        $diff = $this->modelFactory->getObject('Amazon_Listing_Diff');
+        $diff = $this->diffFactory->create();
         $diff->setNewSnapshot($newData);
         $diff->setOldSnapshot($oldData);
 
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\AffectedListingsProducts $affectedListingsProducts */
-        $affectedListingsProducts = $this->modelFactory->getObject('Amazon_Listing_AffectedListingsProducts');
+        $affectedListingsProducts = $this->affectedListingsProductsFactory->create();
         $affectedListingsProducts->setModel($listing);
 
         $affectedListingsProductsData = $affectedListingsProducts->getObjectsData(
@@ -187,8 +200,7 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
             ['only_physical_units' => true]
         );
 
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\ChangeProcessor $changeProcessor */
-        $changeProcessor = $this->modelFactory->getObject('Amazon_Listing_ChangeProcessor');
+        $changeProcessor = $this->changeProcessorFactory->create();
         $changeProcessor->process($diff, $affectedListingsProductsData);
 
         $this->processSellingFormatTemplateChange($oldData, $newData, $affectedListingsProductsData);
@@ -200,9 +212,9 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
         );
         $this->processShippingTemplateChange($oldData, $newData, $affectedListingsProductsData);
 
-        $this->getMessageManager()->addSuccess($this->__('The Listing was saved.'));
+        $this->getMessageManager()->addSuccess(__('The Listing was saved.'));
 
-        return $this->_redirect($this->helperData->getBackUrl('list', [], ['edit' => ['id' => $id]]));
+        return $this->_redirect($this->urlHelper->getBackUrl('list', [], ['edit' => ['id' => $id]]));
     }
 
     // ----------------------------------------

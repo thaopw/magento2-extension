@@ -10,17 +10,26 @@ namespace Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction;
 
 class Index extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
 {
+    private \Ess\M2ePro\Model\Ebay\Listing\Repository $listingRepository;
+
+    public function __construct(
+        \Ess\M2ePro\Model\Ebay\Listing\Repository $listingRepository,
+        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory $ebayFactory,
+        \Ess\M2ePro\Controller\Adminhtml\Context $context
+    ) {
+        parent::__construct($ebayFactory, $context);
+        $this->listingRepository = $listingRepository;
+    }
+
     public function execute()
     {
-        /** @var \Ess\M2ePro\Model\Listing $listing */
-        $listing = $this->ebayFactory->getCachedObjectLoaded(
-            'Listing',
-            $this->getRequest()->getParam('listing_id')
-        );
+        $listing = $this->listingRepository->get((int)$this->getRequest()->getParam('listing_id'));
         $this->getHelper('Data\GlobalData')->setValue('listing', $listing);
 
         $autoMode = $this->getRequest()->getParam('auto_mode');
-        empty($autoMode) && $autoMode = $listing->getAutoMode();
+        if (empty($autoMode)) {
+            $autoMode = $listing->getAutoMode();
+        }
 
         switch ($autoMode) {
             case \Ess\M2ePro\Model\Listing::AUTO_MODE_GLOBAL:

@@ -212,10 +212,9 @@ define([
                 this.clearQueueButton.prop('disabled', true);
                 this.runScenarioButton.prop('disabled', true);
 
-                const emptyText = `
-                        <div class="empty-state">
-                            Queue is empty. Select a task and click "Add to Sequence" to build a sequence.
-                        </div>`
+                const emptyText = '<div class="empty-state">'
+                    + 'Queue is empty. Select a task and click "Add to Sequence" to build a sequence.'
+                    + '</div>';
                 this.queueList.append(emptyText);
 
                 return;

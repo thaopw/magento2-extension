@@ -3,10 +3,11 @@ define([
     'Magento_Ui/js/modal/alert',
     'Magento_Ui/js/modal/modal',
     'underscore',
+    'mage/translate',
     'jquery/validate',
     'M2ePro/Common',
     'prototype'
-], function (jQuery, alert, modal, _) {
+], function (jQuery, alert, modal, _, $t) {
     window.ListingAutoAction = Class.create(Common, {
 
         // ---------------------------------------
@@ -19,28 +20,26 @@ define([
         magentoCategoryIdsFromOtherGroups: {},
         magentoCategoryTreeChangeEventInProgress: false,
 
-    // ---------------------------------------
+        // ---------------------------------------
 
-        getController: function()
-        {
+        getController: function () {
             throw Error('Method should be overrided and return controller')
         },
 
         // ---------------------------------------
 
-        initialize: function()
-        {
-            jQuery.validator.addMethod('M2ePro-validate-mode', function() {
-                return $$('input[name="auto_mode"]').any(function(el) {
+        initialize: function () {
+            jQuery.validator.addMethod('M2ePro-validate-mode', function () {
+                return $$('input[name="auto_mode"]').any(function (el) {
                     return el.checked;
                 })
-            }, M2ePro.translator.translate('This is a required field.'));
+            }, $t('This is a required field.'));
 
-            jQuery.validator.addMethod('M2ePro-validate-category-selection', function() {
+            jQuery.validator.addMethod('M2ePro-validate-category-selection', function () {
                 return categories_selected_items.length > 0
-            }, M2ePro.translator.translate('You must select at least 1 Category.'));
+            }, $t('You must select at least 1 Category.'));
 
-            jQuery.validator.addMethod('M2ePro-validate-category-group-title', function(value, element) {
+            jQuery.validator.addMethod('M2ePro-validate-category-group-title', function (value, element) {
 
                 var unique = true;
 
@@ -51,25 +50,42 @@ define([
                         group_id: $('group_id').value,
                         title: $('group_title').value
                     },
-                    onSuccess: function(transport) {
+                    onSuccess: function (transport) {
                         unique = transport.responseText.evalJSON()['unique'];
                     }
                 });
 
                 return unique;
-            }, M2ePro.translator.translate('Rule with the same Title already exists.'));
+            }, $t('Rule with the same Title already exists.'));
+
+            jQuery.validator.addMethod('M2ePro-validate-advanced-filter-title', function (value, element) {
+
+                var unique = true;
+
+                new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/isAdvancedFilterTitleUnique'), {
+                    method: 'get',
+                    asynchronous: false,
+                    parameters: {
+                        advanced_filter_id: $('advanced_filter_id').value,
+                        title: $('title').value
+                    },
+                    onSuccess: function (transport) {
+                        unique = transport.responseText.evalJSON()['unique'];
+                    }
+                });
+
+                return unique;
+            }, $t('Advanced Filter Rule with the same Title already exists.'));
         },
 
-        clear: function()
-        {
+        clear: function () {
             this.internalData = {};
             this.magentoCategoryTreeChangeEventInProgress = false;
         },
 
         // ---------------------------------------
 
-        setPopupMode: function(mode)
-        {
+        setPopupMode: function (mode) {
             if (mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_GLOBAL')) {
                 this.popupMode = 'global';
             } else if (mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_WEBSITE')) {
@@ -85,15 +101,13 @@ define([
             return this;
         },
 
-        getPopupMode: function()
-        {
+        getPopupMode: function () {
             return this.popupMode != '' ? this.popupMode + '_' : '';
         },
 
         // ---------------------------------------
 
-        loadAutoActionHtml: function(mode)
-        {
+        loadAutoActionHtml: function (mode) {
             mode = mode || null;
 
             new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/index'), {
@@ -102,10 +116,10 @@ define([
                 parameters: {
                     auto_mode: mode || null
                 },
-                onSuccess: function(transport) {
+                onSuccess: function (transport) {
 
                     var responseData = JSON.parse(transport.responseText);
-                    var title = M2ePro.translator.translate('Auto Add/Remove Rules');
+                    var title = $t('Auto Add/Remove Rules');
 
                     this.clear();
                     if (mode) {
@@ -120,33 +134,32 @@ define([
 
         // ---------------------------------------
 
-        openPopUp: function(title, content)
-        {
+        openPopUp: function (title, content) {
             var popupMode = this.getPopupMode(),
-                popupData = {};
+                    popupData = {};
 
             if (popupMode.indexOf('global') != -1) {
                 popupData = [
                     {
-                        label: M2ePro.translator.translate('Continue'),
+                        label: $t('Continue'),
                         class: 'next continue_button primary forward',
-                        attr: {style: 'display: none', id: popupMode+'continue_button'},
+                        attr: {style: 'display: none', id: popupMode + 'continue_button'},
                         callback: ListingAutoActionObj.globalStepTwo
                     },
                     {
-                        label: M2ePro.translator.translate('Reset Auto Rules'),
-                        attr: {style: 'display: none', id: popupMode+'reset_button'},
-                        callback: function() {
-                            ListingAutoActionObj.reset(false, function() {
+                        label: $t('Reset Auto Rules'),
+                        attr: {style: 'display: none', id: popupMode + 'reset_button'},
+                        callback: function () {
+                            ListingAutoActionObj.reset(false, function () {
                                 ListingAutoActionObj.global_popup.modal('closeModal');
                             });
                         }
                     },
                     {
-                        label: M2ePro.translator.translate('Complete'),
+                        label: $t('Complete'),
                         class: 'confirm_button primary',
-                        attr: {id: popupMode+'confirm_button'},
-                        callback: function() {
+                        attr: {id: popupMode + 'confirm_button'},
+                        callback: function () {
                             ListingAutoActionObj.confirm();
                         }
                     }
@@ -154,25 +167,25 @@ define([
             } else if (popupMode.indexOf('website') != -1) {
                 popupData = [
                     {
-                        label: M2ePro.translator.translate('Continue'),
+                        label: $t('Continue'),
                         class: 'next continue_button primary forward',
-                        attr: {style: 'display: none', id: popupMode+'continue_button'},
+                        attr: {style: 'display: none', id: popupMode + 'continue_button'},
                         callback: ListingAutoActionObj.websiteStepTwo
                     },
                     {
-                        label: M2ePro.translator.translate('Reset Auto Rules'),
-                        attr: {style: 'display: none', id: popupMode+'reset_button'},
-                        callback: function() {
-                            ListingAutoActionObj.reset(false, function() {
+                        label: $t('Reset Auto Rules'),
+                        attr: {style: 'display: none', id: popupMode + 'reset_button'},
+                        callback: function () {
+                            ListingAutoActionObj.reset(false, function () {
                                 ListingAutoActionObj.website_popup.modal('closeModal');
                             });
                         }
                     },
                     {
-                        label: M2ePro.translator.translate('Complete'),
+                        label: $t('Complete'),
                         class: 'confirm_button primary',
-                        attr: {id: popupMode+'confirm_button'},
-                        callback: function() {
+                        attr: {id: popupMode + 'confirm_button'},
+                        callback: function () {
                             ListingAutoActionObj.confirm();
                         }
                     }
@@ -180,19 +193,19 @@ define([
             } else if (popupMode.indexOf('category') != -1) {
                 popupData = [
                     {
-                        label: M2ePro.translator.translate('Close'),
+                        label: $t('Close'),
                         class: 'next close_button',
                         attr: {style: 'display:none', id: popupMode + 'close_button'},
                         closeModal: true
                     },
                     {
-                        label: M2ePro.translator.translate('Back'),
+                        label: $t('Back'),
                         attr: {id: popupMode + 'cancel_button'},
                         class: 'back',
                         closeModal: true
                     },
                     {
-                        label: M2ePro.translator.translate('Reset Auto Rules'),
+                        label: $t('Reset Auto Rules'),
                         attr: {style: 'display: none', id: popupMode + 'reset_button'},
                         callback: function () {
                             ListingAutoActionObj.reset(false, function () {
@@ -201,7 +214,7 @@ define([
                         }
                     },
                     {
-                        label: M2ePro.translator.translate('Add New Rule'),
+                        label: $t('Add New Rule'),
                         class: 'add_button add primary',
                         attr: {id: 'add_button'},
                         callback: function () {
@@ -212,48 +225,46 @@ define([
             } else if (popupMode.indexOf('advanced_filter') != -1) {
                 popupData = [
                     {
-                        label: M2ePro.translator.translate('Continue'),
-                        class: 'next continue_button primary forward',
-                        attr: {
-                            id: popupMode + 'continue_button',
-                            style: 'display: none'
-                        },
-                        callback: ListingAutoActionObj.advancedFilterStepTwo
+                        label: $t('Close'),
+                        class: 'next close_button',
+                        attr: {style: 'display:none', id: popupMode + 'close_button'},
+                        closeModal: true
                     },
                     {
-                        label: M2ePro.translator.translate('Reset Auto Rules'),
-                        attr: {
-                            id: popupMode+'reset_button',
-                            style: 'display: none'
-                        },
-                        callback: function() {
-                            ListingAutoActionObj.reset(false, function() {
+                        label: $t('Back'),
+                        attr: {id: popupMode + 'cancel_button'},
+                        class: 'back',
+                        closeModal: true
+                    },
+                    {
+                        label: $t('Reset Auto Rules'),
+                        attr: {id: popupMode + 'reset_button'},
+                        callback: function () {
+                            ListingAutoActionObj.reset(false, function () {
                                 ListingAutoActionObj.advanced_filter_popup.modal('closeModal');
                             });
                         }
                     },
                     {
-                        label: M2ePro.translator.translate('Complete'),
-                        class: 'confirm_button primary',
-                        attr: {
-                            id: popupMode+'confirm_button'
-                        },
-                        callback: function() {
-                            ListingAutoActionObj.confirm();
+                        label: $t('Add New Rule'),
+                        class: 'add_button add primary',
+                        attr: {id: 'add_button'},
+                        callback: function () {
+                            ListingAutoActionObj.advancedFilterStepOne();
                         }
                     }
                 ];
             } else {
                 popupData = [
                     {
-                        label: M2ePro.translator.translate('Cancel'),
+                        label: $t('Cancel'),
                         closeModal: true
                     },
                     {
-                        label: M2ePro.translator.translate('Continue'),
+                        label: $t('Continue'),
                         class: 'next continue_button primary forward',
                         attr: {id: 'continue_button'},
-                        callback: function() {
+                        callback: function () {
                             var contentWrapper = jQuery('#block-content-wrapper');
                             contentWrapper.wrap('<form></form>');
 
@@ -263,7 +274,7 @@ define([
                             contentWrapper.unwrap();
 
                             ListingAutoActionObj.loadAutoActionHtml(
-                                $$('input[name="auto_mode"]:checked')[0].value
+                                    $$('input[name="auto_mode"]:checked')[0].value
                             );
 
                             this.closeModal();
@@ -275,40 +286,39 @@ define([
             this._createPopup(popupMode, title, content, popupData);
         },
 
-        _createPopup: function(mode, title, content, popupData)
-        {
+        _createPopup: function (mode, title, content, popupData) {
             var self = this,
-                modalDialogMessage = $(mode+'modal_auto_action'),
-                buttonsConfig = [];
+                    modalDialogMessage = $(mode + 'modal_auto_action'),
+                    buttonsConfig = [];
 
             if (!modalDialogMessage) {
                 modalDialogMessage = new Element('div', {
-                    id: mode+'modal_auto_action'
+                    id: mode + 'modal_auto_action'
                 });
             }
 
             modalDialogMessage.innerHTML = '';
 
-            if (typeof self[mode+'popup'] == 'undefined') {
-                _.each(popupData, function(buttonConfig) {
+            if (typeof self[mode + 'popup'] == 'undefined') {
+                _.each(popupData, function (buttonConfig) {
                     var tmpConfig = {
                         text: buttonConfig.label || '',
                         class: buttonConfig.class || '',
                         attr: buttonConfig.attr || {},
                         click: function () {
                             buttonConfig.callback && buttonConfig.callback.call(this);
-                            buttonConfig.closeModal && self[mode+'popup'].modal('closeModal');
+                            buttonConfig.closeModal && self[mode + 'popup'].modal('closeModal');
                         }
                     };
 
                     buttonsConfig.push(tmpConfig);
                 });
 
-                self[mode+'popup'] = jQuery(modalDialogMessage).modal({
+                self[mode + 'popup'] = jQuery(modalDialogMessage).modal({
                     title: title + ' <span id="additional_autoaction_title" style="font-size: inherit;"></span>',
                     type: 'slide',
                     buttons: buttonsConfig,
-                    closed: function() {
+                    closed: function () {
                         ListingAutoActionObj.clear();
 
                         var node = this.up('.modal-slide').previousSibling.previousSibling;
@@ -317,28 +327,27 @@ define([
                         }
 
                         this.up('.modal-slide').remove();
-                        delete self[mode+'popup'];
+                        delete self[mode + 'popup'];
 
                         return true;
                     }
                 });
             }
 
-            self[mode+'popup'].modal('openModal');
-            self.currentPopup = self[mode+'popup'];
+            self[mode + 'popup'].modal('openModal');
+            self.currentPopup = self[mode + 'popup'];
 
             modalDialogMessage.innerHTML = content;
             modalDialogMessage.innerHTML.evalScripts();
 
             var additionalTitleEl = $('additional_autoaction_title_text');
 
-            $('additional_autoaction_title').innerHTML = additionalTitleEl ? '(' + additionalTitleEl.innerHTML + ')': '';
+            $('additional_autoaction_title').innerHTML = additionalTitleEl ? '(' + additionalTitleEl.innerHTML + ')' : '';
         },
 
         // ---------------------------------------
 
-        addingModeChange: function()
-        {
+        addingModeChange: function () {
             $('continue_button').hide();
             $('confirm_button').show();
 
@@ -352,8 +361,7 @@ define([
 
         // ---------------------------------------
 
-        loadAutoCategoryForm: function(groupId, callback)
-        {
+        loadAutoCategoryForm: function (groupId, callback) {
             var popupMode = this.getPopupMode();
 
             new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/getAutoCategoryFormHtml'), {
@@ -362,40 +370,42 @@ define([
                 parameters: {
                     group_id: groupId || null
                 },
-                onSuccess: function(transport) {
+                onSuccess: function (transport) {
 
                     this._createPopup(
-                        'category_child_',
-                        M2ePro.translator.translate('Add/Edit Categories Rule'),
-                        transport.responseText,
-                        [{
-                            label: M2ePro.translator.translate('Back'),
-                            attr: {id: popupMode+'cancel_button'},
-                            class: 'back',
-                            callback: function() {
-                                listingAutoActionModeCategoryGroupGridJsObject.doFilter();
-                            },
-                            closeModal: true
-                        },
-                        {
-                            label: M2ePro.translator.translate('Continue'),
-                            class: 'next continue_button primary forward',
-                            attr: {style: 'display: none', id: popupMode+'continue_button'},
-                            callback: function() {
-                                ListingAutoActionObj.categoryStepTwo();
-                            },
-                        },
-                        {
-                            label: M2ePro.translator.translate('Complete'),
-                            class: 'confirm_button primary',
-                            attr: {id: popupMode+'confirm_button'},
-                            callback: function() {
-                                ListingAutoActionObj.confirm();
-                                $(popupMode+'close_button').hide();
-                                $(popupMode+'cancel_button').hide();
-                                $(popupMode+'reset_button').show();
-                            }
-                        }]
+                            'category_child_',
+                            $t('Add/Edit Categories Rule'),
+                            transport.responseText,
+                            [
+                                {
+                                    label: $t('Back'),
+                                    attr: {id: popupMode + 'cancel_button'},
+                                    class: 'back',
+                                    callback: function () {
+                                        listingAutoActionModeCategoryGroupGridJsObject.doFilter();
+                                    },
+                                    closeModal: true
+                                },
+                                {
+                                    label: $t('Continue'),
+                                    class: 'next continue_button primary forward',
+                                    attr: {style: 'display: none', id: popupMode + 'continue_button'},
+                                    callback: function () {
+                                        ListingAutoActionObj.categoryStepTwo();
+                                    },
+                                },
+                                {
+                                    label: $t('Complete'),
+                                    class: 'confirm_button primary',
+                                    attr: {id: popupMode + 'confirm_button'},
+                                    callback: function () {
+                                        ListingAutoActionObj.confirm();
+                                        $(popupMode + 'close_button').hide();
+                                        $(popupMode + 'cancel_button').hide();
+                                        $(popupMode + 'reset_button').show();
+                                    }
+                                }
+                            ]
                     );
 
                     this.magentoCategoryTreeChangeEventInProgress = false;
@@ -407,8 +417,63 @@ define([
             });
         },
 
-        magentoCategorySelectCallback: function(selectedCategories)
-        {
+        loadAutoAdvancedFilterForm: function (advancedFilterId, callback) {
+            const popupMode = this.getPopupMode();
+
+            new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/getAutoAdvancedFilterFormHtml'), {
+                method: 'get',
+                asynchronous: true,
+                parameters: {
+                    advanced_filter_id: advancedFilterId || null
+                },
+                onSuccess: function (transport) {
+
+                    this._createPopup(
+                            'advanced_filter_child_',
+                            $t('Add/Edit Advanced Filter Rule'),
+                            transport.responseText,
+                            [
+                                {
+                                    label: $t('Back'),
+                                    attr: {id: popupMode + 'cancel_button'},
+                                    class: 'back',
+                                    callback: function () {
+                                        listingAutoActionModeAdvancedFilterGridJsObject.doFilter();
+                                    },
+                                    closeModal: true
+                                },
+                                {
+                                    label: $t('Continue'),
+                                    class: 'next continue_button primary forward',
+                                    attr: {style: 'display: none', id: popupMode + 'continue_button'},
+                                    callback: function () {
+                                        ListingAutoActionObj.advancedFilterStepTwo();
+                                    },
+                                },
+                                {
+                                    label: $t('Complete'),
+                                    class: 'confirm_button primary',
+                                    attr: {id: popupMode + 'confirm_button'},
+                                    callback: function () {
+                                        ListingAutoActionObj.confirm();
+                                        $(popupMode + 'close_button').hide();
+                                        $(popupMode + 'cancel_button').hide();
+                                        $(popupMode + 'reset_button').show();
+                                    }
+                                }
+                            ]
+                    );
+
+                    this.magentoCategoryTreeChangeEventInProgress = false;
+
+                    if (typeof callback == 'function') {
+                        callback();
+                    }
+                }.bind(this)
+            });
+        },
+
+        magentoCategorySelectCallback: function (selectedCategories) {
             if (this.magentoCategoryTreeChangeEventInProgress) {
                 return;
             }
@@ -431,12 +496,12 @@ define([
             }
 
             template.innerHTML = $('dialog_confirm_content').innerHTML
-                .replace('%s', this.magentoCategoryIdsFromOtherGroups[latestCategory].title);
+                    .replace('%s', this.magentoCategoryIdsFromOtherGroups[latestCategory].title);
 
             jQuery(template).confirm({
-                title: M2ePro.translator.translate('Remove Category'),
+                title: $t('Remove Category'),
                 actions: {
-                    confirm: function() {
+                    confirm: function () {
                         new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/deleteCategory'), {
                             method: 'post',
                             asynchronous: true,
@@ -444,31 +509,31 @@ define([
                                 group_id: ListingAutoActionObj.magentoCategoryIdsFromOtherGroups[latestCategory].id,
                                 category_id: latestCategory
                             },
-                            onSuccess: function(transport) {
+                            onSuccess: function (transport) {
                                 delete ListingAutoActionObj.magentoCategoryIdsFromOtherGroups[latestCategory];
                             }
                         });
 
                         return true;
                     },
-                    cancel: function() {
+                    cancel: function () {
                         tree.jstree(true).uncheck_node(latestCategory);
                     }
                 },
                 buttons: [{
-                    text: M2ePro.translator.translate('Cancel'),
+                    text: $t('Cancel'),
                     class: 'action-secondary action-dismiss',
                     click: function (event) {
                         this.closeModal(event);
                     }
                 }, {
-                    text: M2ePro.translator.translate('Confirm'),
+                    text: $t('Confirm'),
                     class: 'action-primary action-accept',
                     click: function (event) {
                         this.closeModal(event, true);
                     }
                 }],
-                closed: function() {
+                closed: function () {
                     ListingAutoActionObj.magentoCategoryTreeChangeEventInProgress = false;
                 }
             });
@@ -476,42 +541,64 @@ define([
 
         // ---------------------------------------
 
-        isCategoryAlreadyUsed: function(categoryId)
-        {
+        isCategoryAlreadyUsed: function (categoryId) {
             return this.magentoCategoryUsedIds.indexOf(categoryId) != -1;
         },
 
-        categoryCancel: function()
-        {
+        categoryCancel: function () {
             ListingAutoActionObj.loadAutoActionHtml(
-                M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_CATEGORY')
+                    M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_CATEGORY')
             );
         },
 
-        categoryStepOne: function(groupId)
-        {
+        categoryStepOne: function (groupId) {
             var mode = ListingAutoActionObj.getPopupMode();
-            this.loadAutoCategoryForm(groupId, function() {
-                $(mode+'reset_button').hide();
-                $(mode+'close_button').hide();
-                $(mode+'cancel_button').show();
+            this.loadAutoCategoryForm(groupId, function () {
+                $(mode + 'reset_button').hide();
+                $(mode + 'close_button').hide();
+                $(mode + 'cancel_button').show();
+            });
+        },
+
+        advancedFilterStepOne: function (groupId) {
+            const mode = ListingAutoActionObj.getPopupMode();
+            this.loadAutoAdvancedFilterForm(groupId, function () {
+                $(mode + 'reset_button').hide();
+                $(mode + 'close_button').hide();
+                $(mode + 'cancel_button').show();
             });
         },
 
         // ---------------------------------------
 
-        categoryDeleteGroup: function(groupId)
-        {
-            this.confirmPopup(M2ePro.translator.translate('Are you sure?'), {
-                confirmCallback: function() {
+        categoryDeleteGroup: function (groupId) {
+            this.confirmPopup($t('Are you sure?'), {
+                confirmCallback: function () {
                     new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/deleteCategoryGroup'), {
                         method: 'post',
                         asynchronous: true,
                         parameters: {
                             group_id: groupId
                         },
-                        onSuccess: function(transport) {
+                        onSuccess: function (transport) {
                             listingAutoActionModeCategoryGroupGridJsObject.doFilter();
+                        }
+                    });
+                }
+            });
+        },
+
+        advancedFilterDelete: function (advancedFilterId) {
+            this.confirmPopup($t('Are you sure?'), {
+                confirmCallback: function () {
+                    new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/deleteAdvancedFilter'), {
+                        method: 'post',
+                        asynchronous: true,
+                        parameters: {
+                            advanced_filter_id: advancedFilterId
+                        },
+                        onSuccess: function (transport) {
+                            listingAutoActionModeAdvancedFilterGridJsObject.doFilter();
                         }
                     });
                 }
@@ -520,8 +607,7 @@ define([
 
         // ---------------------------------------
 
-        validate: function()
-        {
+        validate: function () {
             if ($('auto_mode')) {
                 var autoMode = $('auto_mode').value;
                 if (
@@ -545,6 +631,26 @@ define([
 
                     return false;
                 }
+
+                if (autoMode == M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_ADVANCED_FILTER')) {
+                    if (
+                            $('adding_mode').value == M2ePro.php.constant('Ess_M2ePro_Model_Listing::ADDING_MODE_NONE')
+                            && $('deleting_mode').value == M2ePro.php.constant('Ess_M2ePro_Model_Listing::DELETING_MODE_NONE')
+                    ) {
+                        this.alertSelectAvailableOptions();
+
+                        return false;
+                    }
+
+                    if (jQuery('.M2ePro-validate-advanced-filter-condition .rule-param:not(.rule-param-new-child)').length <= 2) {
+                        alert({
+                            title: $t('Conditions required'),
+                            content: $t('Please add at least one filter condition to create a rule.'),
+                        });
+
+                        return false;
+                    }
+                }
             }
 
             var validationResult = true;
@@ -556,16 +662,14 @@ define([
             return validationResult;
         },
 
-        alertSelectAvailableOptions: function ()
-        {
+        alertSelectAvailableOptions: function () {
             alert({
-                title: M2ePro.translator.translate('Rule not created'),
-                content: M2ePro.translator.translate('Please select at least one action from the available options'),
+                title: $t('Rule not created'),
+                content: $t('Please select at least one action from the available options'),
             });
         },
 
-        confirm: function()
-        {
+        confirm: function () {
             if (!ListingAutoActionObj.validate()) {
                 return;
             }
@@ -574,13 +678,19 @@ define([
 
             var callback;
             if (ListingAutoActionObj.internalData.auto_mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_CATEGORY')) {
-                callback = function() {
+                callback = function () {
                     this.category_child_popup.modal('closeModal');
 
                     listingAutoActionModeCategoryGroupGridJsObject.doFilter();
                 }.bind(this);
+            } else if (ListingAutoActionObj.internalData.auto_mode == M2ePro.php.constant('\\Ess\\M2ePro\\Model\\Listing::AUTO_MODE_ADVANCED_FILTER')) {
+                callback = function () {
+                    this.advanced_filter_child_popup.modal('closeModal');
+
+                    listingAutoActionModeAdvancedFilterGridJsObject.doFilter();
+                }.bind(this);
             } else {
-                callback = function() {
+                callback = function () {
                     this.currentPopup.modal('closeModal');
                 }.bind(this);
             }
@@ -588,8 +698,7 @@ define([
             ListingAutoActionObj.submitData(callback);
         },
 
-        collectData: function()
-        {
+        collectData: function () {
             if ($('auto_mode')) {
                 switch (parseInt($('auto_mode').value)) {
                     case M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_GLOBAL'):
@@ -622,24 +731,25 @@ define([
                         break;
 
                     case M2ePro.php.constant('Ess_M2ePro_Model_Listing::AUTO_MODE_ADVANCED_FILTER'):
-                        const rulesArray = jQuery('#advanced_filter_modal_auto_action form').serializeArray().filter(function(field) {
+                        const rulesArray = jQuery('#advanced_filter_child_data_container form').serializeArray().filter(function (field) {
                             return field.name.indexOf('rule') === 0;
                         });
 
                         ListingAutoActionObj.internalData = {
+                            id: $('advanced_filter_id').value,
+                            title: $('title').value,
                             auto_mode: $('auto_mode').value,
-                            auto_advanced_filter_adding_mode: $('auto_advanced_filter_adding_mode').value,
-                            auto_advanced_filter_adding_add_not_visible: $('auto_advanced_filter_adding_add_not_visible').value,
-                            auto_advanced_filter_deleting_mode: $('auto_advanced_filter_deleting_mode').value,
-                            auto_advanced_filter_condition: jQuery.param(rulesArray),
+                            adding_mode: $('adding_mode').value,
+                            adding_add_not_visible: $('adding_add_not_visible').value,
+                            deleting_mode: $('deleting_mode').value,
+                            condition: jQuery.param(rulesArray),
                         };
                         break;
                 }
             }
         },
 
-        submitData: function(callback)
-        {
+        submitData: function (callback) {
             var data = this.internalData;
 
             new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/save'), {
@@ -648,7 +758,7 @@ define([
                 parameters: {
                     auto_action_data: Object.toJSON(data)
                 },
-                onSuccess: function(transport) {
+                onSuccess: function (transport) {
                     if (typeof callback == 'function') {
                         callback();
                     }
@@ -656,16 +766,15 @@ define([
             });
         },
 
-        reset: function(skipConfirmation, callback, closeCallback)
-        {
+        reset: function (skipConfirmation, callback, closeCallback) {
             skipConfirmation = skipConfirmation || false;
 
-            var confirmCallback = function() {
+            var confirmCallback = function () {
                 new Ajax.Request(M2ePro.url.get(ListingAutoActionObj.getController() + '/reset'), {
                     method: 'post',
                     asynchronous: true,
                     parameters: {},
-                    onSuccess: function(transport) {
+                    onSuccess: function (transport) {
                         callback && callback();
                         ListingAutoActionObj.loadAutoActionHtml();
                     }
@@ -677,7 +786,7 @@ define([
                 return
             }
 
-            ListingAutoActionObj.confirmPopup(M2ePro.translator.translate('Are you sure?'), {
+            ListingAutoActionObj.confirmPopup($t('Are you sure?'), {
                 confirmCallback: confirmCallback,
                 closeCallback: closeCallback
             });
@@ -685,21 +794,20 @@ define([
 
         // ---------------------------------------
 
-        confirmPopup: function(message, configData)
-        {
+        confirmPopup: function (message, configData) {
             jQuery('<div>').confirm({
                 title: message,
                 actions: {
-                    always: function() {
+                    always: function () {
                         configData.closeCallback && configData.closeCallback();
                     },
-                    confirm: function() {
+                    confirm: function () {
                         configData.confirmCallback && configData.confirmCallback();
                         return true;
                     },
                     buttons: [
-                        {text: M2ePro.translator.translate('Cancel')},
-                        {text: M2ePro.translator.translate('Confirm'), class: 'primary'}
+                        {text: $t('Cancel')},
+                        {text: $t('Confirm'), class: 'primary'}
                     ]
                 }
             });

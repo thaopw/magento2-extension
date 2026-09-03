@@ -170,24 +170,26 @@ HTML
             ]
         );
 
-        $form->addField(
-            'mode_advanced_filter',
-            'radio',
-            [
-                'name' => 'auto_mode',
-                'value' => \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER,
-                'class' => 'admin__control-radio',
-                'after_element_html' => __('Advanced Filter'),
-            ]
-        );
+        if ($this->isEbayListing()) {
+            $form->addField(
+                'mode_advanced_filter',
+                'radio',
+                [
+                    'name' => 'auto_mode',
+                    'value' => \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER,
+                    'class' => 'admin__control-radio',
+                    'after_element_html' => __('Advanced Filter'),
+                ]
+            );
 
-        $form->addField(
-            'note_mode_advanced_filter',
-            'note',
-            [
-                'text' => __('Acts when the Product matches or no longer the configured conditions.'),
-            ]
-        );
+            $form->addField(
+                'note_mode_advanced_filter',
+                'note',
+                [
+                    'text' => __('Acts when the Product matches or no longer the configured conditions.'),
+                ]
+            );
+        }
 
         $form->addField(
             'validation',
@@ -201,5 +203,13 @@ HTML
         $this->css->add('label.mage-error[for="validation"] { width: 220px !important; }');
 
         return $form->toHtml();
+    }
+
+    private function isEbayListing(): bool
+    {
+        /** @var \Ess\M2ePro\Model\Listing $listing */
+        $listing = $this->globalDataHelper->getValue('listing');
+
+        return $listing->getComponentMode() === \Ess\M2ePro\Helper\Component\Ebay::NICK;
     }
 }

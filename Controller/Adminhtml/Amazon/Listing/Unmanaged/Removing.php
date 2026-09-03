@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Ess\M2ePro\Controller\Adminhtml\Amazon\Listing\Unmanaged;
 
-class Removing extends Index
+class Removing extends \Ess\M2ePro\Controller\Adminhtml\Amazon\Listing
 {
     private \Ess\M2ePro\Model\Amazon\Listing\Other\Remover $listingOtherProductRemover;
     private \Ess\M2ePro\Helper\Module\Exception $exceptionHelper;

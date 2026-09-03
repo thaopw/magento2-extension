@@ -1,41 +1,38 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Block\Adminhtml\Walmart\Listing\Unmanaged;
 
 use Ess\M2ePro\Model\Listing\Product;
 
-class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractGrid
+class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Product\Grid
 {
-    /** @var \Magento\Framework\Locale\CurrencyInterface */
-    private $localeCurrency;
-    /** @var \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Walmart\Factory */
-    private $walmartFactory;
-    /** @var \Ess\M2ePro\Helper\Data */
-    private $dataHelper;
-    /** @var \Ess\M2ePro\Helper\Component\Walmart */
-    private $walmartHelper;
+    protected $showAdvancedFilterProductsOption = false;
+    protected $useAdvancedFilter = true;
+
+    private \Magento\Framework\Locale\CurrencyInterface $localeCurrency;
+    private \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Walmart\Factory $walmartFactory;
+    protected \Ess\M2ePro\Helper\Data $dataHelper;
+    private \Ess\M2ePro\Helper\Component\Walmart $walmartHelper;
+    private \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager;
 
     public function __construct(
+        \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager,
         \Magento\Framework\Locale\CurrencyInterface $localeCurrency,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Walmart\Factory $walmartFactory,
         \Ess\M2ePro\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Backend\Helper\Data $backendHelper,
         \Ess\M2ePro\Helper\Data $dataHelper,
-        \Ess\M2ePro\Helper\Component\Walmart $walmartHelper,
-        array $data = []
+        \Ess\M2ePro\Helper\Component\Walmart $walmartHelper
     ) {
+        $this->uiRuleManager = $uiRuleManager;
         $this->localeCurrency = $localeCurrency;
         $this->walmartFactory = $walmartFactory;
         $this->dataHelper = $dataHelper;
         $this->walmartHelper = $walmartHelper;
 
-        parent::__construct($context, $backendHelper, $data);
+        parent::__construct($context, $backendHelper, $dataHelper);
     }
 
     public function _construct()
@@ -659,11 +656,27 @@ JS
 
     public function getGridUrl()
     {
-        return $this->getUrl('*/walmart_listing_unmanaged/grid', ['_current' => true]);
+        return $this->getUrl('*/walmart_listing_unmanaged/index', ['_current' => true]);
     }
 
     public function getRowUrl($item)
     {
         return false;
+    }
+
+    /**
+     * @param \Ess\M2ePro\Model\ResourceModel\Listing\Other\Collection $collection
+     *
+     * @return void
+     * @throws \Ess\M2ePro\Model\Exception\Logic
+     * @throws \Ess\M2ePro\Model\Exception
+     */
+    public function setCollection($collection)
+    {
+        if ($this->useAdvancedFilter) {
+            $this->uiRuleManager->appendAdvancedFilterToCollection($collection);
+        }
+
+        $this->_collection = $collection;
     }
 }

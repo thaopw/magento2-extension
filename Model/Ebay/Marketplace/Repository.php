@@ -17,6 +17,22 @@ class Repository
         $this->listingResource = $listingResource;
     }
 
+    public function find(int $id): ?\Ess\M2ePro\Model\Marketplace
+    {
+        $collection = $this->marketplaceCollectionFactory->createWithEbayChildMode();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Ebay\Marketplace::COLUMN_MARKETPLACE_ID,
+            ['eq' => $id]
+        );
+
+        $marketplace = $collection->getFirstItem();
+        if ($marketplace->isObjectNew()) {
+            return null;
+        }
+
+        return $marketplace;
+    }
+
     /**
      * @return \Ess\M2ePro\Model\Marketplace[]
      */

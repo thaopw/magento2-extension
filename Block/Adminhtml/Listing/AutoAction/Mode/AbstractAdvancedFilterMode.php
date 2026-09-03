@@ -6,6 +6,8 @@ namespace Ess\M2ePro\Block\Adminhtml\Listing\AutoAction\Mode;
 
 abstract class AbstractAdvancedFilterMode extends \Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm
 {
+    protected const GRID_BLOCK_ALIAS = 'advanced_filter_grid';
+
     /** @var mixed */
     protected $listing;
 
@@ -28,37 +30,34 @@ abstract class AbstractAdvancedFilterMode extends \Ess\M2ePro\Block\Adminhtml\Ma
         parent::_construct();
 
         $this->setId('listingAutoActionModeAdvancedFilter');
-        $this->formData = $this->getFormData();
     }
 
-    public function hasFormData()
+    protected function _prepareForm()
     {
-        return $this->getListing()->getData('auto_mode') == \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER;
+        $this->prepareGrid();
+
+        $form = $this->_formFactory->create();
+
+        $containerHtml = $this->getChildHtml(self::GRID_BLOCK_ALIAS);
+
+        $form->addField(
+            'custom_listing_auto_action_mode_advanced_filter',
+            \Ess\M2ePro\Block\Adminhtml\Magento\Form\Element\CustomContainer::class,
+            [
+                'text' => $containerHtml,
+                'field_extra_attributes' => 'style="width: 100%"',
+            ]
+        );
+
+        $form->setUseContainer(true);
+        $this->setForm($form);
+
+        return parent::_prepareForm();
     }
 
-    public function getFormData()
-    {
-        $formData = $this->getListing()->getData();
-        $formData = array_merge($formData, $this->getListing()->getChildObject()->getData());
-        $default = $this->getDefault();
+    abstract protected function prepareGrid(): void;
 
-        return array_merge($default, $formData);
-    }
-
-    public function getDefault()
-    {
-        return [
-            'auto_advanced_filter_adding_mode' => \Ess\M2ePro\Model\Listing::ADDING_MODE_ADD,
-            'auto_advanced_filter_adding_add_not_visible' => \Ess\M2ePro\Model\Listing::AUTO_ADDING_ADD_NOT_VISIBLE_YES,
-            'auto_advanced_filter_deleting_mode' => \Ess\M2ePro\Model\Listing::DELETING_MODE_STOP_REMOVE,
-        ];
-    }
-
-    /**
-     * @return \Ess\M2ePro\Model\Listing
-     * @throws \Exception
-     */
-    public function getListing()
+    public function getListing(): \Ess\M2ePro\Model\Listing
     {
         if ($this->listing === null) {
             $this->listing = $this->activeRecordFactory->getCachedObjectLoaded(
@@ -74,20 +73,6 @@ abstract class AbstractAdvancedFilterMode extends \Ess\M2ePro\Block\Adminhtml\Ma
     {
         $this->jsPhp->addConstants(
             $this->dataHelper->getClassConstants(\Ess\M2ePro\Model\Listing::class)
-        );
-
-        $hasFormData = $this->hasFormData() ? 'true' : 'false';
-
-        $this->js->add(
-            <<<JS
-        $('auto_advanced_filter_adding_mode')
-            .observe('change', ListingAutoActionObj.addingModeChange)
-            .simulate('change');
-
-        if ({$hasFormData}) {
-            $('advanced_filter_reset_button').show();
-        }
-JS
         );
 
         return parent::_afterToHtml($html);

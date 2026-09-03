@@ -19,8 +19,7 @@ abstract class Grid extends \Ess\M2ePro\Block\Adminhtml\Magento\Grid\AbstractGri
     protected $showAdvancedFilterProductsOption = true;
     protected $useAdvancedFilter = true;
 
-    /** @var \Ess\M2ePro\Helper\Data */
-    protected $dataHelper;
+    protected \Ess\M2ePro\Helper\Data $dataHelper;
 
     public function __construct(
         \Ess\M2ePro\Block\Adminhtml\Magento\Context\Template $context,

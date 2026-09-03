@@ -244,7 +244,7 @@ JS
     ): void {
         $allAttributes = $this->magentoAttributeHelper->getAll();
         $attributes = $this->magentoAttributeHelper
-            ->filterByInputTypes($allAttributes, ['text']);
+            ->filterByInputTypes($allAttributes, ['text', 'select']);
 
         $preparedOptions = [];
         foreach ($attributes as $attribute) {

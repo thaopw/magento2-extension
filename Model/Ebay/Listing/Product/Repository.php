@@ -155,19 +155,4 @@ class Repository
 
         return $result;
     }
-
-    public function isExistProductInListing(int $listingId, int $magentoProductId): bool
-    {
-        $collection = $this->listingProductCollectionFactory->createWithEbayChildMode();
-        $collection->addFieldToFilter(
-            \Ess\M2ePro\Model\ResourceModel\Listing\Product::LISTING_ID_FIELD,
-            ['eq' => $listingId]
-        );
-        $collection->addFieldToFilter(
-            \Ess\M2ePro\Model\ResourceModel\Listing\Product::PRODUCT_ID_FIELD,
-            ['eq' => $magentoProductId]
-        );
-
-        return $collection->count() > 0;
-    }
 }

@@ -14,6 +14,32 @@ class Repository
         $this->listingCollectionFactory = $listingCollectionFactory;
     }
 
+    public function find(int $id): ?\Ess\M2ePro\Model\Listing
+    {
+        $collection = $this->listingCollectionFactory->createWithEbayChildMode();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_ID,
+            ['eq' => $id]
+        );
+
+        $listing = $collection->getFirstItem();
+        if ($listing->isObjectNew()) {
+            return null;
+        }
+
+        return $listing;
+    }
+
+    public function get(int $id): \Ess\M2ePro\Model\Listing
+    {
+        $listing = $this->find($id);
+        if ($listing === null) {
+            throw new \Ess\M2ePro\Model\Exception\EntityNotFound("Listing '$id' not found");
+        }
+
+        return $listing;
+    }
+
     /**
      * @return \Ess\M2ePro\Model\Listing[]
      */
@@ -22,24 +48,5 @@ class Repository
         $listingsCollection = $this->listingCollectionFactory->createWithEbayChildMode();
 
         return array_values($listingsCollection->getItems());
-    }
-
-    /**
-     * @return \Ess\M2ePro\Model\Listing[]
-     */
-    public function findAutoActionAdvancedFilterListings(): array
-    {
-        $collection = $this->listingCollectionFactory->createWithEbayChildMode();
-
-        $collection->addFieldToFilter(
-            'auto_mode',
-            ['eq' => \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER]
-        );
-        $collection->addFieldToFilter(
-            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_AUTO_ADVANCED_FILTER_ADDING_MODE,
-            ['neq' => \Ess\M2ePro\Model\Listing::ADDING_MODE_NONE]
-        );
-
-        return array_values($collection->getItems());
     }
 }

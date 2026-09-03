@@ -19,6 +19,7 @@ class Proxy
     /** @var array */
     private $categoriesIds = [];
     private array $bundleOptionNames = [];
+    private array $autoAdvancedFilterAttributes = [];
 
     /**
      * @param int $value
@@ -82,6 +83,24 @@ class Proxy
     public function getAttributes()
     {
         return $this->attributes;
+    }
+
+    /**
+     * @param \Ess\M2ePro\Observer\Product\AddUpdate\DTO\AttributeValue[] $attributes
+     *
+     * @return void
+     */
+    public function setAutoAdvancedFilterAttributes(array $attributes)
+    {
+        $this->autoAdvancedFilterAttributes = $attributes;
+    }
+
+    /**
+     * @return \Ess\M2ePro\Observer\Product\AddUpdate\DTO\AttributeValue[]
+     */
+    public function getAutoAdvancedFilterAttributes(): array
+    {
+        return $this->autoAdvancedFilterAttributes;
     }
 
     //########################################

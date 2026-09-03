@@ -1,34 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction;
 
-use Ess\M2ePro\Model\Listing as Listing;
-use Ess\M2ePro\Model\Ebay\Listing as eBayListing;
 use Ess\M2ePro\Helper\Component\Ebay\Category as eBayCategory;
+use Ess\M2ePro\Model\Ebay\Listing as eBayListing;
+use Ess\M2ePro\Model\Listing as Listing;
 
 class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
 {
-    /** @var \Ess\M2ePro\Model\Ebay\Template\Category\Chooser\ConverterFactory */
-    private $converterFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Template\CategoryFactory */
-    private $categoryFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Template\Category\BuilderFactory */
-    private $categoryBuilderFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Template\StoreCategoryFactory */
-    private $storeCategoryFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Template\StoreCategory\BuilderFactory */
-    private $storeCategoryBuilderFactory;
-    /** @var \Ess\M2ePro\Model\Ebay\Listing\Auto\Category\GroupFactory */
-    private $autoCategoryGroupFactory;
-    /** @var \Ess\M2ePro\Model\Listing\Auto\CategoryFactory */
-    private $autoCategoryFactory;
-
-    private static $idsCategoryTemplates = [
+    private static array $idsCategoryTemplates = [
         'idMainTemplateCategory' => null,
         'idSecondaryTemplateCategory' => null,
         'idMainStoreTemplateCategory' => null,
         'idSecondaryStoreTemplateCategory' => null,
     ];
+
+    private \Ess\M2ePro\Model\Ebay\Template\Category\Chooser\ConverterFactory $converterFactory;
+    private \Ess\M2ePro\Model\Ebay\Template\CategoryFactory $categoryFactory;
+    private \Ess\M2ePro\Model\Ebay\Template\Category\BuilderFactory $categoryBuilderFactory;
+    private \Ess\M2ePro\Model\Ebay\Template\StoreCategoryFactory $storeCategoryFactory;
+    private \Ess\M2ePro\Model\Ebay\Template\StoreCategory\BuilderFactory $storeCategoryBuilderFactory;
+    private eBayListing\Auto\Category\GroupFactory $autoCategoryGroupFactory;
+    private Listing\Auto\CategoryFactory $autoCategoryFactory;
+    private eBayListing\Auto\Advanced\Filter\Create $ebayAutoAdvancedFilterCreate;
+    private eBayListing\Auto\Advanced\Filter\Update $ebayAutoAdvancedFilterUpdate;
+    /**
+     * @var \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Repository
+     */
+    private eBayListing\Auto\Advanced\Filter\Repository $ebayAutoAdvancedFilterRepository;
 
     public function __construct(
         \Ess\M2ePro\Model\Ebay\Template\Category\Chooser\ConverterFactory $converterFactory,
@@ -38,6 +39,9 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
         \Ess\M2ePro\Model\Ebay\Template\StoreCategory\BuilderFactory $storeCategoryBuilderFactory,
         \Ess\M2ePro\Model\Ebay\Listing\Auto\Category\GroupFactory $autoCategoryGroupFactory,
         \Ess\M2ePro\Model\Listing\Auto\CategoryFactory $autoCategoryFactory,
+        \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Create $ebayAutoAdvancedFilterCreate,
+        \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Update $ebayAutoAdvancedFilterUpdate,
+        \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter\Repository $ebayAutoAdvancedFilterRepository,
         \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Ebay\Factory $ebayFactory,
         \Ess\M2ePro\Controller\Adminhtml\Context $context
     ) {
@@ -50,6 +54,9 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
         $this->storeCategoryBuilderFactory = $storeCategoryBuilderFactory;
         $this->autoCategoryGroupFactory = $autoCategoryGroupFactory;
         $this->autoCategoryFactory = $autoCategoryFactory;
+        $this->ebayAutoAdvancedFilterCreate = $ebayAutoAdvancedFilterCreate;
+        $this->ebayAutoAdvancedFilterUpdate = $ebayAutoAdvancedFilterUpdate;
+        $this->ebayAutoAdvancedFilterRepository = $ebayAutoAdvancedFilterRepository;
     }
 
     public function execute()
@@ -155,15 +162,6 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
             'auto_website_adding_template_store_category_secondary_id' => null,
 
             'auto_website_deleting_mode' => Listing::DELETING_MODE_NONE,
-
-            'auto_advanced_filter_adding_mode' => Listing::ADDING_MODE_NONE,
-            'auto_advanced_filter_adding_add_not_visible' => Listing::AUTO_ADDING_ADD_NOT_VISIBLE_YES,
-            'auto_advanced_filter_deleting_mode' => Listing::DELETING_MODE_NONE,
-            'auto_advanced_filter_condition' => null,
-            'auto_advanced_filter_adding_template_category_id' => null,
-            'auto_advanced_filter_adding_template_category_secondary_id' => null,
-            'auto_advanced_filter_adding_template_store_category_id' => null,
-            'auto_advanced_filter_adding_template_store_category_secondary_id' => null,
         ];
 
         if ($requestData['auto_mode'] == Listing::AUTO_MODE_GLOBAL) {
@@ -215,31 +213,7 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
 
         if ($requestData['auto_mode'] == Listing::AUTO_MODE_ADVANCED_FILTER) {
             $listingData['auto_mode'] = Listing::AUTO_MODE_ADVANCED_FILTER;
-            $listingData['auto_advanced_filter_adding_mode'] = $requestData['auto_advanced_filter_adding_mode'];
-
-            if ($requestData['auto_advanced_filter_adding_mode'] == eBayListing::ADDING_MODE_ADD_AND_ASSIGN_CATEGORY) {
-                $listingData['auto_advanced_filter_adding_template_category_id']
-                    = self::$idsCategoryTemplates['idMainTemplateCategory'];
-                $listingData['auto_advanced_filter_adding_template_category_secondary_id']
-                    = self::$idsCategoryTemplates['idSecondaryTemplateCategory'];
-                $listingData['auto_advanced_filter_adding_template_store_category_id']
-                    = self::$idsCategoryTemplates['idMainStoreTemplateCategory'];
-                $listingData['auto_advanced_filter_adding_template_store_category_secondary_id']
-                    = self::$idsCategoryTemplates['idSecondaryStoreTemplateCategory'];
-            }
-
-            if ($requestData['auto_advanced_filter_adding_mode'] != Listing::ADDING_MODE_NONE) {
-                $listingData['auto_advanced_filter_adding_add_not_visible']
-                    = $requestData['auto_advanced_filter_adding_add_not_visible'];
-            }
-
-            if ($requestData['auto_advanced_filter_deleting_mode'] != Listing::DELETING_MODE_NONE) {
-                $listingData['auto_advanced_filter_deleting_mode']
-                    = $requestData['auto_advanced_filter_deleting_mode'];
-            }
-
-            $listingData['auto_advanced_filter_condition']
-                =  $this->prepareAdvancedFilterCondition($requestData['auto_advanced_filter_condition']);
+            $this->saveAdvancedFilter($requestData, (int)$listing->getId());
         }
 
         $listing->addData($listingData);
@@ -306,19 +280,65 @@ class Save extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing\AutoAction
         }
     }
 
+    private function saveAdvancedFilter(array $requestData, int $listingId)
+    {
+        $model = $this->ebayAutoAdvancedFilterRepository->find((int)$requestData['id']);
+
+        $addingTemplateCategoryId = !empty(self::$idsCategoryTemplates['idMainTemplateCategory'])
+            ? (int)self::$idsCategoryTemplates['idMainTemplateCategory']
+            : null;
+        $addingTemplateCategorySecondaryId = !empty(self::$idsCategoryTemplates['idSecondaryTemplateCategory'])
+            ? (int)self::$idsCategoryTemplates['idSecondaryTemplateCategory']
+            : null;
+        $addingTemplateStoreCategoryId = !empty(self::$idsCategoryTemplates['idMainStoreTemplateCategory'])
+            ? (int)self::$idsCategoryTemplates['idMainStoreTemplateCategory']
+            : null;
+        $addingTemplateStoreCategorySecondaryId = !empty(self::$idsCategoryTemplates['idSecondaryStoreTemplateCategory'])
+            ? (int)self::$idsCategoryTemplates['idSecondaryStoreTemplateCategory']
+            : null;
+
+        if ($model !== null) {
+            $this->ebayAutoAdvancedFilterUpdate->execute(
+                $model,
+                (string)$requestData['title'],
+                (int)$requestData['adding_mode'],
+                (int)$requestData['adding_add_not_visible'],
+                (int)$requestData['deleting_mode'],
+                $this->prepareAdvancedFilterCondition($requestData['condition']),
+                $addingTemplateCategoryId,
+                $addingTemplateCategorySecondaryId,
+                $addingTemplateStoreCategoryId,
+                $addingTemplateStoreCategorySecondaryId
+            );
+
+            return;
+        }
+
+        $this->ebayAutoAdvancedFilterCreate->execute(
+            $listingId,
+            (string)$requestData['title'],
+            (int)$requestData['adding_mode'],
+            (int)$requestData['adding_add_not_visible'],
+            (int)$requestData['deleting_mode'],
+            $this->prepareAdvancedFilterCondition($requestData['condition']),
+            $addingTemplateCategoryId,
+            $addingTemplateCategorySecondaryId,
+            $addingTemplateStoreCategoryId,
+            $addingTemplateStoreCategorySecondaryId
+        );
+    }
+
     private function prepareAdvancedFilterCondition($data): ?string
     {
-        $rulePrefix = 'ebay_auto_action_advanced_filter';
-
         $post = [];
         parse_str($data, $post);
 
-        if (empty($post['rule'][$rulePrefix])) {
+        if (empty($post['rule'][\Ess\M2ePro\Model\Listing\Auto\Advanced\Filter::RULE_MODEL_PREFIX])) {
             return null;
         }
 
         $ruleModel = $this->activeRecordFactory->getObject('Magento_Product_Rule')->setData(
-            ['prefix' => $rulePrefix]
+            ['prefix' => \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter::RULE_MODEL_PREFIX]
         );
 
         return $ruleModel->getSerializedFromPost($post);

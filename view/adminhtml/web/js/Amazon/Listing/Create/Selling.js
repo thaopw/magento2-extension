@@ -69,9 +69,6 @@ define([
                 conditionCustomAttribute = $('condition_custom_attribute'),
                 offerImagesWrapper = $('magento_block_amazon_offer_images_settings-wrapper');
 
-            offerImagesWrapper.show();
-
-
             conditionValue.value = '';
             conditionCustomAttribute.value = '';
 
@@ -81,6 +78,11 @@ define([
             } else {
                 self.updateHiddenValue(this, conditionCustomAttribute);
                 self.condition_note_mode_change();
+            }
+
+            offerImagesWrapper.show();
+            if (conditionValue.value === 'new_new') {
+                offerImagesWrapper.hide();
             }
         },
 

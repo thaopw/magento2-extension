@@ -22,3 +22,7 @@
 #ebayListingOtherViewGrid_table .grid-listing-column-online_qty_sold {
     width: 100px;
 }
+
+.admin__data-grid-header ._massaction .form-inline + .admin__grid-massaction {
+    margin-left: 0;
+}

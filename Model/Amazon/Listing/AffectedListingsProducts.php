@@ -1,30 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ess\M2ePro\Model\Amazon\Listing;
 
 class AffectedListingsProducts extends \Ess\M2ePro\Model\Template\AffectedListingsProductsAbstract
 {
     protected \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory;
-
-    // ----------------------------------------
+    private \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory;
 
     public function __construct(
-        \Ess\M2ePro\Model\ActiveRecord\Component\Parent\Amazon\Factory $amazonFactory,
+        \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory,
         \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
         \Ess\M2ePro\Helper\Factory $helperFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
         array $data = []
     ) {
-        $this->amazonFactory = $amazonFactory;
         parent::__construct($activeRecordFactory, $helperFactory, $modelFactory, $data);
+        $this->listingProductCollectionFactory = $listingProductCollectionFactory;
     }
 
     // ----------------------------------------
 
-    public function loadCollection(array $filters = [])
+    public function loadCollection(array $filters = []): \Ess\M2ePro\Model\ResourceModel\Listing\Product\Collection
     {
-        /** @var \Ess\M2ePro\Model\ResourceModel\Listing\Product\Collection $listingProductCollection */
-        $listingProductCollection = $this->amazonFactory->getObject('Listing\Product')->getCollection();
+        $listingProductCollection = $this->listingProductCollectionFactory->createWithAmazonChildMode();
         $listingProductCollection->addFieldToFilter(
             \Ess\M2ePro\Model\ResourceModel\Listing\Product::LISTING_ID_FIELD,
             ['eq' => (int)$this->model->getId()]

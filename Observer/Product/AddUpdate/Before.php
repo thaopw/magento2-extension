@@ -19,8 +19,10 @@ class Before extends AbstractAddUpdate
     private $proxy = null;
 
     private BundleOptionsCollector $bundleOptionsCollector;
+    private \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter\AttributeCollector $autoAdvancedFilterAttributeCollector;
 
     public function __construct(
+        \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter\AttributeCollector $autoAdvancedFilterAttributeCollector,
         \Ess\M2ePro\Observer\Product\AddUpdate\Before\ProxyFactory $proxyFactory,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Ess\M2ePro\Helper\Factory $helperFactory,
@@ -28,6 +30,7 @@ class Before extends AbstractAddUpdate
         \Ess\M2ePro\Model\Factory $modelFactory,
         BundleOptionsCollector $bundleOptionsCollector
     ) {
+        $this->autoAdvancedFilterAttributeCollector = $autoAdvancedFilterAttributeCollector;
         $this->proxyFactory = $proxyFactory;
         $this->bundleOptionsCollector = $bundleOptionsCollector;
         parent::__construct($productFactory, $helperFactory, $activeRecordFactory, $modelFactory);
@@ -61,6 +64,8 @@ class Before extends AbstractAddUpdate
 
         $this->getProxy()->setWebsiteIds($this->getProduct()->getWebsiteIds());
         $this->getProxy()->setCategoriesIds($this->getProduct()->getCategoryIds());
+
+        $this->getProxy()->setAutoAdvancedFilterAttributes($this->getAutoAdvancedFilterTrackedAttributesWithValues());
 
         if (!$this->areThereAffectedItems()) {
             return;
@@ -176,5 +181,21 @@ class Before extends AbstractAddUpdate
         return $attributes;
     }
 
-    //########################################
+    private function getAutoAdvancedFilterTrackedAttributesWithValues(): array
+    {
+        $attributes = $this->autoAdvancedFilterAttributeCollector->execute();
+        if (empty($attributes)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($attributes as $attributeCode) {
+            $result[] = new DTO\AttributeValue(
+                $attributeCode,
+                $this->getMagentoProduct()->getAttributeValue($attributeCode)
+            );
+        }
+
+        return $result;
+    }
 }

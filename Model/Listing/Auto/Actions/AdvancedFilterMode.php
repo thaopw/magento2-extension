@@ -8,30 +8,33 @@ class AdvancedFilterMode
 {
     private Listing\Factory $autoActionsListingFactory;
     private Mode\DuplicateProducts $duplicateProducts;
-    private \Ess\M2ePro\Model\Ebay\Listing\Repository $ebayListingRepository;
     private \Ess\M2ePro\Model\Magento\Product\RuleFactory $ruleFactory;
-    private \Ess\M2ePro\Model\Ebay\Listing\Product\Repository $ebayListingProductRepository;
     private \Ess\M2ePro\Model\Magento\ProductFactory $magentoProductFactory;
+    private \Ess\M2ePro\Model\ResourceModel\Listing\CollectionFactory $listingCollectionFactory;
+    private \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory;
+    private \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter\CollectionFactory $autoAdvancedFilterCollectionFactory;
 
     public function __construct(
         \Ess\M2ePro\Model\Magento\Product\RuleFactory $ruleFactory,
-        \Ess\M2ePro\Model\Ebay\Listing\Repository $ebayListingRepository,
-        \Ess\M2ePro\Model\Ebay\Listing\Product\Repository $ebayListingProductRepository,
         \Ess\M2ePro\Model\Listing\Auto\Actions\Listing\Factory $autoActionsListingFactory,
         \Ess\M2ePro\Model\Listing\Auto\Actions\Mode\DuplicateProducts $duplicateProducts,
-        \Ess\M2ePro\Model\Magento\ProductFactory $magentoProductFactory
+        \Ess\M2ePro\Model\Magento\ProductFactory $magentoProductFactory,
+        \Ess\M2ePro\Model\ResourceModel\Listing\CollectionFactory $listingCollectionFactory,
+        \Ess\M2ePro\Model\ResourceModel\Listing\Product\CollectionFactory $listingProductCollectionFactory,
+        \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter\CollectionFactory $autoAdvancedFilterCollectionFactory
     ) {
         $this->autoActionsListingFactory = $autoActionsListingFactory;
         $this->duplicateProducts = $duplicateProducts;
-        $this->ebayListingRepository = $ebayListingRepository;
         $this->ruleFactory = $ruleFactory;
-        $this->ebayListingProductRepository = $ebayListingProductRepository;
         $this->magentoProductFactory = $magentoProductFactory;
+        $this->listingCollectionFactory = $listingCollectionFactory;
+        $this->listingProductCollectionFactory = $listingProductCollectionFactory;
+        $this->autoAdvancedFilterCollectionFactory = $autoAdvancedFilterCollectionFactory;
     }
 
     public function synchByProductId(int $magentoProductId): void
     {
-        $listings = $this->ebayListingRepository->findAutoActionAdvancedFilterListings();
+        $listings = $this->getListings();
         if (empty($listings)) {
             return;
         }
@@ -46,40 +49,53 @@ class AdvancedFilterMode
 
             $magentoProduct = $magentoProductsByStoreId[$listing->getStoreId()];
 
-            $ruleModel = $this->ruleFactory->create('ebay_auto_action_advanced_filter', $listing->getStoreId());
-            $ruleModel->loadFromSerialized($listing->getAutoAdvancedFilterCondition());
-
-            $isProductInListing = $this->ebayListingProductRepository
-                ->isExistProductInListing((int)$listing->getId(), (int)$magentoProduct->getId());
-
-            if (
-                (!$isProductInListing && $listing->isAutoAdvancedFilterAddingModeNone())
-                || ($isProductInListing && $listing->isAutoAdvancedFilterDeletingModeNone())
-            ) {
-                return;
+            $advancedFilterRules = $this->getAdvancedFilterRulesByListingId((int)$listing->getId());
+            if (empty($advancedFilterRules)) {
+                continue;
             }
 
-            $isValidCondition = $ruleModel->validate($magentoProduct);
+            $isProductInListing = $this->isExistProductInListing(
+                (int)$listing->getId(),
+                (int)$magentoProduct->getId()
+            );
 
-            if (!$isProductInListing && $isValidCondition) {
-                $this->addProductToListing($listing, $magentoProduct);
-            }
+            foreach ($advancedFilterRules as $advancedFilterRule) {
+                $ruleModel = $this->ruleFactory->create(
+                    \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter::RULE_MODEL_PREFIX,
+                    $listing->getStoreId()
+                );
+                $ruleModel->loadFromSerialized($advancedFilterRule->getCondition());
 
-            if ($isProductInListing && !$isValidCondition) {
-                $this->deleteProductFromListing($listing, $magentoProduct);
+                if (
+                    (!$isProductInListing && $advancedFilterRule->isAddingModeNone())
+                    || ($isProductInListing && $advancedFilterRule->isAutoDeletingModeNone())
+                ) {
+                    continue;
+                }
+
+                $isValidCondition = $ruleModel->validate($magentoProduct);
+
+                if (!$isProductInListing && $isValidCondition) {
+                    $this->addProductToListing($listing, $advancedFilterRule, $magentoProduct);
+                }
+
+                if ($isProductInListing && !$isValidCondition) {
+                    $this->deleteProductFromListing($listing, $advancedFilterRule, $magentoProduct);
+                }
             }
         }
     }
 
     private function addProductToListing(
         \Ess\M2ePro\Model\Listing $listing,
+        \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter $autoAdvancedFilter,
         \Magento\Catalog\Model\Product $magentoProduct
     ): void {
-        if ($listing->isAutoAdvancedFilterAddingModeNone()) {
+        if ($autoAdvancedFilter->isAddingModeNone()) {
             return;
         }
 
-        if (!$listing->isAutoAdvancedFilterAddingAddNotVisibleYes()) {
+        if (!$autoAdvancedFilter->isAutoAddingAddNotVisibleYes()) {
             if (
                 $magentoProduct->getVisibility()
                 == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE
@@ -95,21 +111,24 @@ class AdvancedFilterMode
         $autoActionListing = $this->autoActionsListingFactory->create($listing);
         $autoActionListing->addProductByAdvancedFilterListing(
             $magentoProduct,
-            $listing
+            $autoAdvancedFilter
         );
     }
 
     private function deleteProductFromListing(
         \Ess\M2ePro\Model\Listing $listing,
+        \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter $autoAdvancedFilter,
         \Magento\Catalog\Model\Product $magentoProduct
     ) {
-        if ($listing->isAutoAdvancedFilterDeletingModeNone()) {
+        if ($autoAdvancedFilter->isAutoDeletingModeNone()) {
             return;
         }
 
         $autoActionListing = $this->autoActionsListingFactory->create($listing);
-        $autoActionListing
-            ->deleteProduct($magentoProduct, $listing->getAutoAdvancedFilterDeletingMode());
+        $autoActionListing->deleteProduct(
+            $magentoProduct,
+            $autoAdvancedFilter->getDeletingMode()
+        );
     }
 
     private function createMagentoProduct(int $magentoProductId, int $storeId): \Magento\Catalog\Model\Product
@@ -119,5 +138,52 @@ class AdvancedFilterMode
         $product->setStoreId($storeId);
 
         return $product->getProduct();
+    }
+
+    /**
+     * @return \Ess\M2ePro\Model\Listing[]
+     */
+    private function getListings(): array
+    {
+        $collection = $this->listingCollectionFactory->create();
+        $collection->addFieldToFilter(
+            'auto_mode',
+            ['eq' => \Ess\M2ePro\Model\Listing::AUTO_MODE_ADVANCED_FILTER]
+        );
+
+        return array_values($collection->getItems());
+    }
+
+    /**
+     * @return \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter[]
+     */
+    private function getAdvancedFilterRulesByListingId(int $listingId): array
+    {
+        $collection = $this->autoAdvancedFilterCollectionFactory->create();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_LISTING_ID,
+            ['eq' => $listingId]
+        );
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_ADDING_MODE,
+            ['neq' => \Ess\M2ePro\Model\Listing::ADDING_MODE_NONE]
+        );
+
+        return array_values($collection->getItems());
+    }
+
+    private function isExistProductInListing(int $listingId, int $magentoProductId): bool
+    {
+        $collection = $this->listingProductCollectionFactory->create();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Product::LISTING_ID_FIELD,
+            ['eq' => $listingId]
+        );
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing\Product::PRODUCT_ID_FIELD,
+            ['eq' => $magentoProductId]
+        );
+
+        return $collection->count() > 0;
     }
 }

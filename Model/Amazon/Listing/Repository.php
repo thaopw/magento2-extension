@@ -14,6 +14,32 @@ class Repository
         $this->listingCollectionFactory = $listingCollectionFactory;
     }
 
+    public function get(int $id): \Ess\M2ePro\Model\Listing
+    {
+        $result = $this->find($id);
+        if ($result === null) {
+            throw new \Ess\M2ePro\Model\Exception\EntityNotFound("Listing with id '$id' does not exist.");
+        }
+
+        return $result;
+    }
+
+    public function find(int $id): ?\Ess\M2ePro\Model\Listing
+    {
+        $collection = $this->listingCollectionFactory->createWithAmazonChildMode();
+        $collection->addFieldToFilter(
+            \Ess\M2ePro\Model\ResourceModel\Listing::COLUMN_ID,
+            $id
+        );
+
+        $result = $collection->getFirstItem();
+        if ($result->isObjectNew()) {
+            return null;
+        }
+
+        return $result;
+    }
+
     /**
      * @return \Ess\M2ePro\Model\Listing[]
      */

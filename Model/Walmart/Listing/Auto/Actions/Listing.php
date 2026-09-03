@@ -176,7 +176,7 @@ class Listing extends \Ess\M2ePro\Model\Listing\Auto\Actions\Listing
 
     public function addProductByAdvancedFilterListing(
         \Magento\Catalog\Model\Product $product,
-        \Ess\M2ePro\Model\Listing $listing
+        \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter $autoAdvancedFilter
     ): void {
     }
 

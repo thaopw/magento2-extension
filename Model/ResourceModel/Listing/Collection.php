@@ -8,6 +8,10 @@
 
 namespace Ess\M2ePro\Model\ResourceModel\Listing;
 
+/**
+ * @method \Ess\M2ePro\Model\Listing getFirstItem()
+ * @method \Ess\M2ePro\Model\Listing[] getItems()
+ */
 class Collection extends \Ess\M2ePro\Model\ResourceModel\ActiveRecord\Collection\Component\Parent\AbstractModel
 {
     /** @var \Ess\M2ePro\Helper\Module\Database\Structure */

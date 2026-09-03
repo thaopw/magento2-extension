@@ -5,6 +5,10 @@ namespace Ess\M2ePro\Block\Adminhtml\Magento\Grid;
 use Magento\Backend\Block\Widget\Grid\Extended;
 use Ess\M2ePro\Block\Adminhtml\Traits;
 
+/**
+ * @method setId(string $id)
+ * @method setUseAjax(bool $status)
+ */
 abstract class AbstractGrid extends Extended
 {
     use Traits\BlockTrait;

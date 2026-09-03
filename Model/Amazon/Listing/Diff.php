@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Ess\M2ePro\Model\Amazon\Listing;
 
 class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
 {
-    // ----------------------------------------
-
-    public function isDifferent()
+    public function isDifferent(): bool
     {
         return $this->isQtyDifferent() ||
             $this->isConditionDifferent() ||
@@ -14,9 +14,7 @@ class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
             $this->isSkuSettingsDifferent();
     }
 
-    // ----------------------------------------
-
-    public function isQtyDifferent()
+    public function isQtyDifferent(): bool
     {
         $keys = [
             'handling_time_mode',
@@ -30,7 +28,7 @@ class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
         return $this->isSettingsDifferent($keys);
     }
 
-    public function isConditionDifferent()
+    public function isConditionDifferent(): bool
     {
         $keys = [
             'condition_mode',
@@ -41,7 +39,7 @@ class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
         return $this->isSettingsDifferent($keys);
     }
 
-    public function isDetailsDifferent()
+    public function isDetailsDifferent(): bool
     {
         $keys = [
             'condition_note_mode',
@@ -55,7 +53,7 @@ class Diff extends \Ess\M2ePro\Model\ActiveRecord\Diff
         return $this->isSettingsDifferent($keys);
     }
 
-    public function isSkuSettingsDifferent()
+    public function isSkuSettingsDifferent(): bool
     {
         $keys = [
             'sku_mode',

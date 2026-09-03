@@ -132,7 +132,7 @@ class Listing extends \Ess\M2ePro\Model\Listing\Auto\Actions\Listing
 
     public function addProductByAdvancedFilterListing(
         \Magento\Catalog\Model\Product $product,
-        \Ess\M2ePro\Model\Listing $listing
+        \Ess\M2ePro\Model\Listing\Auto\Advanced\Filter $autoAdvancedFilter
     ) {
         $logData = [
             'reason' => __METHOD__,
@@ -149,14 +149,14 @@ class Listing extends \Ess\M2ePro\Model\Listing\Auto\Actions\Listing
             return;
         }
 
-        /** @var \Ess\M2ePro\Model\Ebay\Listing $eListing */
-        $eListing = $listing->getChildObject();
+        /** @var \Ess\M2ePro\Model\Ebay\Listing\Auto\Advanced\Filter $ebayAutoAdvancedFilter */
+        $ebayAutoAdvancedFilter = $autoAdvancedFilter->getChildObject();
 
         $params = [
-            'template_category_id' => $eListing->getAutoAdvancedFilterAddingTemplateCategoryId(),
-            'template_category_secondary_id' => $eListing->getAutoAdvancedFilterAddingTemplateCategorySecondaryId(),
-            'template_store_category_id' => $eListing->getAutoAdvancedFilterAddingTemplateStoreCategoryId(),
-            'template_store_category_secondary_id' => $eListing->getAutoAdvancedFilterAddingTemplateStoreCategorySecondaryId(),
+            'template_category_id' => $ebayAutoAdvancedFilter->getAddingTemplateCategoryId(),
+            'template_category_secondary_id' => $ebayAutoAdvancedFilter->getAddingTemplateCategorySecondaryId(),
+            'template_store_category_id' => $ebayAutoAdvancedFilter->getAddingTemplateStoreCategoryId(),
+            'template_store_category_secondary_id' => $ebayAutoAdvancedFilter->getAddingTemplateStoreCategorySecondaryId(),
         ];
 
         $this->processAddedListingProduct($listingProduct, $params);

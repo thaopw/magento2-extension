@@ -24,6 +24,7 @@ class Tables
     public const TABLE_LISTING_PRODUCT_INSTRUCTION = self::PREFIX . 'listing_product_instruction';
     public const TABLE_LISTING_AUTO_CATEGORY = self::PREFIX . 'listing_auto_category';
     public const TABLE_LISTING_AUTO_CATEGORY_GROUP = self::PREFIX . 'listing_auto_category_group';
+    public const TABLE_LISTING_AUTO_ADVANCED_FILTER = self::PREFIX . 'listing_auto_advanced_filter';
     public const TABLE_LISTING_OTHER = self::PREFIX . 'listing_other';
 
     public const TABLE_ORDER = self::PREFIX . 'order';
@@ -47,6 +48,7 @@ class Tables
     public const TABLE_EBAY_COMPLIANCE_DOCUMENTS = self::PREFIX . 'ebay_compliance_document';
     public const TABLE_EBAY_COMPLIANCE_DOCUMENTS_LISTING_PRODUCT
         = self::PREFIX . 'ebay_compliance_document_listing_product';
+    public const TABLE_EBAY_LISTING_AUTO_ADVANCED_FILTER = self::PREFIX . 'ebay_listing_auto_advanced_filter';
 
     public const TABLE_EBAY_BUNDLE_OPTIONS_MAPPING = self::PREFIX . 'ebay_bundle_options_mapping';
 

@@ -16,19 +16,32 @@ use Ess\M2ePro\Controller\Adminhtml\Context;
 class Index extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing
 {
     private WizardRepository $wizardRepository;
+    private \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager;
+    private \Ess\M2ePro\Model\Ebay\Account\Repository $accountRepository;
+    private \Ess\M2ePro\Model\Ebay\Marketplace\Repository $marketplaceRepository;
 
     public function __construct(
         WizardRepository $wizardRepository,
+        \Ess\M2ePro\Model\Listing\Other\UiRuleManager $uiRuleManager,
+        \Ess\M2ePro\Model\Ebay\Account\Repository $accountRepository,
+        \Ess\M2ePro\Model\Ebay\Marketplace\Repository $marketplaceRepository,
         Factory $ebayFactory,
         Context $context
     ) {
         parent::__construct($ebayFactory, $context);
-
         $this->wizardRepository = $wizardRepository;
+        $this->uiRuleManager = $uiRuleManager;
+        $this->accountRepository = $accountRepository;
+        $this->marketplaceRepository = $marketplaceRepository;
     }
 
     public function execute()
     {
+        $this->uiRuleManager->setRuleModel(
+            \Ess\M2ePro\Model\Ebay\Magento\Product\UnmanagedRule::NICK,
+            $this->getStoreId(),
+            $this->getRequest()
+        );
         if ($this->getRequest()->getQuery('ajax')) {
             $this->setAjaxContent(
                 $this->getLayout()->createBlock(\Ess\M2ePro\Block\Adminhtml\Ebay\Listing\Unmanaged\Grid::class)
@@ -56,5 +69,22 @@ class Index extends \Ess\M2ePro\Controller\Adminhtml\Ebay\Listing
         $this->setPageHelpLink('the-unmanaged-listings');
 
         return $this->getResult();
+    }
+
+    private function getStoreId(): int
+    {
+        $account = $this->accountRepository
+            ->find((int)$this->getRequest()->getParam('ebayAccount'));
+        $marketplace = $this->marketplaceRepository
+            ->find((int)$this->getRequest()->getParam('ebayMarketplace'));
+
+        if ($account === null || $marketplace === null) {
+            return \Magento\Store\Model\Store::DEFAULT_STORE_ID;
+        }
+
+        /** @var \Ess\M2ePro\Model\Ebay\Account $ebayAccount */
+        $ebayAccount = $account->getChildObject();
+
+        return $ebayAccount->getRelatedStoreId($marketplace->getId());
     }
 }

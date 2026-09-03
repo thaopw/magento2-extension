@@ -1,16 +1,9 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
+declare(strict_types=1);
 
 namespace Ess\M2ePro\Model\Amazon\Listing;
 
-/**
- * Class \Ess\M2ePro\Model\Amazon\Listing\ChangeProcessor
- */
 class ChangeProcessor extends \Ess\M2ePro\Model\Amazon\Template\ChangeProcessor\ChangeProcessorAbstract
 {
     public const INSTRUCTION_TYPE_CONDITION_DATA_CHANGED = 'listing_condition_data_changed';
@@ -18,19 +11,19 @@ class ChangeProcessor extends \Ess\M2ePro\Model\Amazon\Template\ChangeProcessor\
 
     public const INSTRUCTION_INITIATOR = 'listing_change_processor';
 
-    //########################################
-
-    protected function getInstructionInitiator()
+    protected function getInstructionInitiator(): string
     {
         return self::INSTRUCTION_INITIATOR;
     }
 
-    // ---------------------------------------
-
-    protected function getInstructionsData(\Ess\M2ePro\Model\ActiveRecord\Diff $diff, $status)
+    /**
+     * @param Diff $diff
+     * @param $status
+     *
+     * @return array
+     */
+    protected function getInstructionsData(\Ess\M2ePro\Model\ActiveRecord\Diff $diff, $status): array
     {
-        /** @var \Ess\M2ePro\Model\Amazon\Listing\Diff $diff */
-
         $data = [];
 
         if ($diff->isQtyDifferent()) {
@@ -87,6 +80,4 @@ class ChangeProcessor extends \Ess\M2ePro\Model\Amazon\Template\ChangeProcessor\
 
         return $data;
     }
-
-    //########################################
 }
