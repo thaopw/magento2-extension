@@ -131,6 +131,28 @@ class Form extends AbstractForm
         );
 
         $fieldset->addField(
+            'street_2',
+            'text',
+            [
+                'name' => 'street[2]',
+                'label' => '',
+                'value' => isset($address['street'][2])
+                    ? $this->dataHelper->escapeHtml($address['street'][2]) : '',
+            ]
+        );
+
+        $fieldset->addField(
+            'street_3',
+            'text',
+            [
+                'name' => 'street[3]',
+                'label' => '',
+                'value' => isset($address['street'][3])
+                    ? $this->dataHelper->escapeHtml($address['street'][3]) : '',
+            ]
+        );
+
+        $fieldset->addField(
             'city',
             'text',
             [

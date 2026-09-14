@@ -30,6 +30,7 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
         \Ess\M2ePro\Helper\Factory $helperFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
         \Ess\M2ePro\Model\Order\UserInfoFactory $userInfoFactory,
+        \Magento\Customer\Helper\Address $addressHelper,
         \Magento\Tax\Model\Calculation $taxCalculation,
         \Magento\Eav\Model\Entity\AttributeFactory $attributeFactory
     ) {
@@ -44,7 +45,8 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
             $customerRepository,
             $helperFactory,
             $modelFactory,
-            $userInfoFactory
+            $userInfoFactory,
+            $addressHelper
         );
     }
 
@@ -157,11 +159,15 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
      */
     public function getAddressData()
     {
-        if (!$this->order->isUseGlobalShippingProgram() && !$this->order->isUseClickAndCollect()) {
+        if (
+            !$this->order->isUseGlobalShippingProgram()
+            && !$this->order->isUseClickAndCollect()
+        ) {
             return parent::getAddressData();
         }
 
-        $addressModel = $this->order->isUseGlobalShippingProgram() ? $this->order->getGlobalShippingWarehouseAddress()
+        $addressModel = $this->order->isUseGlobalShippingProgram()
+            ? $this->order->getGlobalShippingWarehouseAddress()
             : $this->order->getShippingAddress();
 
         $rawAddressData = $addressModel->getRawData();

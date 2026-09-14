@@ -38,6 +38,7 @@ abstract class ProxyObject extends \Ess\M2ePro\Model\AbstractModel
 
     /** @var \Ess\M2ePro\Model\Order\UserInfoFactory */
     private $userInfoFactory;
+    private \Magento\Customer\Helper\Address $addressHelper;
 
     public function __construct(
         \Ess\M2ePro\Model\Currency $currency,
@@ -47,7 +48,8 @@ abstract class ProxyObject extends \Ess\M2ePro\Model\AbstractModel
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Ess\M2ePro\Helper\Factory $helperFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
-        \Ess\M2ePro\Model\Order\UserInfoFactory $userInfoFactory
+        \Ess\M2ePro\Model\Order\UserInfoFactory $userInfoFactory,
+        \Magento\Customer\Helper\Address $addressHelper
     ) {
         $this->currency = $currency;
         $this->payment = $payment;
@@ -57,6 +59,7 @@ abstract class ProxyObject extends \Ess\M2ePro\Model\AbstractModel
         $this->customerFactory = $customerFactory;
         $this->customerRepository = $customerRepository;
         parent::__construct($helperFactory, $modelFactory);
+        $this->addressHelper = $addressHelper;
     }
 
     public function createUserInfoFromRawName(string $rawName): UserInfo
@@ -334,7 +337,9 @@ abstract class ProxyObject extends \Ess\M2ePro\Model\AbstractModel
             $this->addressData['city'] = $rawAddressData['city'];
             $this->addressData['postcode'] = $rawAddressData['postcode'];
             $this->addressData['telephone'] = $rawAddressData['telephone'];
-            $this->addressData['street'] = !empty($rawAddressData['street']) ? $rawAddressData['street'] : '';
+            $this->addressData['street'] = $this->prepareStreetLines(
+                !empty($rawAddressData['street']) ? $rawAddressData['street'] : []
+            );
             $this->addressData['company'] = !empty($rawAddressData['company']) ? $rawAddressData['company'] : '';
             $this->addressData['save_in_address_book'] = 0;
         }
@@ -612,5 +617,33 @@ COMMENT;
         }
 
         return $comments;
+    }
+
+    /**
+     * @param string[] $streetLines
+     *
+     * @return string[]
+     * @throws \Ess\M2ePro\Model\Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function prepareStreetLines(array $streetLines): array
+    {
+        if (empty($streetLines)) {
+            return [];
+        }
+
+        $maxLines = $this->addressHelper->getStreetLines($this->getStore());
+
+        if (count($streetLines) <= $maxLines) {
+            return $streetLines;
+        }
+
+        $result = array_slice($streetLines, 0, $maxLines - 1);
+
+        $overflowLines = array_slice($streetLines, $maxLines - 1);
+        $result[] = implode(', ', $overflowLines);
+
+        return $result;
     }
 }

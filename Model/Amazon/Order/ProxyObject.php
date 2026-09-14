@@ -27,7 +27,8 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
         \Ess\M2ePro\Helper\Factory $helperFactory,
         \Ess\M2ePro\Model\Factory $modelFactory,
         \Ess\M2ePro\Model\Order\UserInfoFactory $userInfoFactory,
-        \Ess\M2ePro\Helper\Component\Amazon $helper
+        \Ess\M2ePro\Helper\Component\Amazon $helper,
+        \Magento\Customer\Helper\Address $addressHelper
     ) {
         parent::__construct(
             $currency,
@@ -37,7 +38,8 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
             $customerRepository,
             $helperFactory,
             $modelFactory,
-            $userInfoFactory
+            $userInfoFactory,
+            $addressHelper
         );
         $this->helper = $helper;
         $this->priceTaxRateFactory = $priceTaxRateFactory;
