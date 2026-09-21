@@ -1,16 +1,7 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
-
 namespace Ess\M2ePro\Model\Config;
 
-/**
- * Class \Ess\M2ePro\Model\Config\Manager
- */
 class Manager extends \Ess\M2ePro\Model\AbstractModel
 {
     public const SORT_NONE = 0;
@@ -24,7 +15,7 @@ class Manager extends \Ess\M2ePro\Model\AbstractModel
     /** @var \Ess\M2ePro\Model\ActiveRecord\Factory  */
     protected $activeRecordFactory;
 
-    //########################################
+    private array $cachedData;
 
     public function __construct(
         \Ess\M2ePro\Model\ActiveRecord\Factory $activeRecordFactory,
@@ -34,8 +25,6 @@ class Manager extends \Ess\M2ePro\Model\AbstractModel
         $this->activeRecordFactory = $activeRecordFactory;
         parent::__construct($helperFactory, $modelFactory);
     }
-
-    //########################################
 
     public function getGroupValue($group, $key)
     {
@@ -64,8 +53,6 @@ class Manager extends \Ess\M2ePro\Model\AbstractModel
         return $this->deleteAllValues($this->prepareGroup($group));
     }
 
-    //########################################
-
     public function clear()
     {
         $resource = $this->activeRecordFactory->getObject('Config')->getResource();
@@ -73,8 +60,6 @@ class Manager extends \Ess\M2ePro\Model\AbstractModel
 
         $this->removeCacheData();
     }
-
-    //########################################
 
     private function getValue($group, $key)
     {
@@ -220,16 +205,31 @@ class Manager extends \Ess\M2ePro\Model\AbstractModel
 
     private function getCacheData()
     {
-        return $this->getCacheModel()->getValue('m2ePro_config_data');
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (isset($this->cachedData)) {
+            return $this->cachedData;
+        }
+
+        $data = $this->getCacheModel()->getValue('m2ePro_config_data');
+        if (
+            !empty($data)
+            && is_array($data)
+        ) {
+            $this->cachedData = $data;
+        }
+
+        return $data;
     }
 
-    private function setCacheData(array $data)
+    private function setCacheData(array $data): void
     {
         $this->getCacheModel()->setValue('m2ePro_config_data', $data, [], self::CACHE_LIFETIME);
     }
 
-    private function removeCacheData()
+    private function removeCacheData(): void
     {
+        unset($this->cachedData);
+
         $this->getCacheModel()->removeValue('m2ePro_config_data');
     }
 

@@ -236,14 +236,13 @@ class AllItemsOptions
             'product_type.id = amazon_listing_product.template_product_type_id',
             [
                 'value' => 'id',
+                'label' => 'title',
             ]
         );
         $select->joinInner(
             ['product_type_dict' => $this->amazonProductTypeDictionaryResource->getMainTable()],
             'product_type.dictionary_product_type_id = product_type_dict.id',
-            [
-                'label' => 'title',
-            ]
+            []
         );
         $select->joinLeft(
             ['marketplace' => $this->marketplaceResource->getMainTable()],
@@ -252,8 +251,8 @@ class AllItemsOptions
                 'group' => 'title',
             ]
         );
-        $select->group(['product_type.id', 'marketplace.title', 'product_type_dict.title']);
-        $select->order(['marketplace.title', 'product_type_dict.title']);
+        $select->group(['product_type.id', 'marketplace.title', 'product_type.title']);
+        $select->order(['marketplace.title', 'product_type.title']);
 
         $optionsData = $select->query()->fetchAll();
 

@@ -1,21 +1,30 @@
 <?php
 
-/**
- * @author     M2E Pro Developers Team
- * @copyright  M2E LTD
- * @license    Commercial use is forbidden
- */
-
 namespace Ess\M2ePro\Model\Amazon\Order\Item;
 
 use Ess\M2ePro\Helper\Data as Helper;
 
 /**
- * Class \Ess\M2ePro\Model\Amazon\Order\Item\ProxyObject
+ * @method \Ess\M2ePro\Model\Amazon\Order\ProxyObject getProxyOrder()
  */
 class ProxyObject extends \Ess\M2ePro\Model\Order\Item\ProxyObject
 {
     //########################################
+
+    public function setPrice($price): self
+    {
+        if (!$this->getProxyOrder()->isReplacementOrder()) {
+            return parent::setPrice($price);
+        }
+
+        if ($price < 0) {
+            throw new \InvalidArgumentException('Price cannot be less than zero.');
+        }
+
+        $this->price = $price;
+
+        return $this;
+    }
 
     /**
      * @return float

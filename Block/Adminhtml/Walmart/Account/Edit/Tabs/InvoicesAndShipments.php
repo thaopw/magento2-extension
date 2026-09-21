@@ -12,6 +12,8 @@ use Ess\M2ePro\Block\Adminhtml\Magento\Form\AbstractForm;
 
 class InvoicesAndShipments extends AbstractForm
 {
+    private const MAX_OTHER_CARRIERS_LINES = 50;
+
     /** @var \Ess\M2ePro\Helper\Data */
     private $dataHelper;
 
@@ -104,7 +106,7 @@ HTML
         $otherCarriers = empty($formData['other_carriers']) ? [] : \Ess\M2ePro\Helper\Json::decode(
             $formData['other_carriers']
         );
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < self::MAX_OTHER_CARRIERS_LINES; $i++) {
             $code = $url = '';
 
             if (!empty($otherCarriers[$i])) {
@@ -204,12 +206,13 @@ HTML
 CSS
         );
 
+        $maxOtherCarriersLines = self::MAX_OTHER_CARRIERS_LINES;
         $this->js->add(
             <<<JS
     require([
         'M2ePro/Walmart/Account',
     ], function() {
-        WalmartAccountObj.otherCarrierInit(30);
+        WalmartAccountObj.otherCarrierInit($maxOtherCarriersLines);
     });
 JS
             ,

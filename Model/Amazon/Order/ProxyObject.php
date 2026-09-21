@@ -46,6 +46,11 @@ class ProxyObject extends \Ess\M2ePro\Model\Order\ProxyObject
         $this->ukTaxService = $ukTaxService;
     }
 
+    public function isReplacementOrder(): bool
+    {
+        return $this->order->isReplacement();
+    }
+
     /**
      * @return mixed
      */

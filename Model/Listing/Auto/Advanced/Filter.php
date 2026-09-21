@@ -126,7 +126,7 @@ class Filter extends \Ess\M2ePro\Model\ActiveRecord\Component\Parent\AbstractMod
 
     public function getCondition(): string
     {
-        return $this->getData(\Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_CONDITION);
+        return (string)$this->getData(\Ess\M2ePro\Model\ResourceModel\Listing\Auto\Advanced\Filter::COLUMN_CONDITION);
     }
 
     public function getConditionAttributes(): array
